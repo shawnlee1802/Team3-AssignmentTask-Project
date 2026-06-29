@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+assignment_tracker.db
+instance/
+.env
+.vscode/

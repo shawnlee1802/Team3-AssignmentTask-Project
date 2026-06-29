@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="h4 mb-4">Add Assignment</h1>
+                <form action="{{ url_for('add_assignment') }}" method="post" novalidate>
+                    <div class="mb-3">
+                        <label for="module_name" class="form-label">Module Name</label>
+                        <input type="text" class="form-control" id="module_name" name="module_name" value="{{ form_data.module_name if form_data else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="assignment_title" class="form-label">Assignment Title</label>
+                        <input type="text" class="form-control" id="assignment_title" name="assignment_title" value="{{ form_data.assignment_title if form_data else '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="4">{{ form_data.description if form_data else '' }}</textarea>
+                    </div>
+                    <div class="row gy-3">
+                        <div class="col-md-6">
+                            <label for="due_date" class="form-label">Due Date</label>
+                            <input type="date" class="form-control" id="due_date" name="due_date" value="{{ form_data.due_date if form_data else '' }}" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="priority" class="form-label">Priority</label>
+                            <select class="form-select" id="priority" name="priority">
+                                {% set selected_priority = form_data.priority if form_data else 'Low' %}
+                                <option value="Low" {% if selected_priority == 'Low' %}selected{% endif %}>Low</option>
+                                <option value="Medium" {% if selected_priority == 'Medium' %}selected{% endif %}>Medium</option>
+                                <option value="High" {% if selected_priority == 'High' %}selected{% endif %}>High</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                {% set selected_status = form_data.status if form_data else 'Not Started' %}
+                                <option value="Not Started" {% if selected_status == 'Not Started' %}selected{% endif %}>Not Started</option>
+                                <option value="In Progress" {% if selected_status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                <option value="Completed" {% if selected_status == 'Completed' %}selected{% endif %}>Completed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('assignments') }}" class="btn btn-outline-secondary">Back to Assignments</a>
+                        <button type="submit" class="btn btn-primary">Save Assignment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
