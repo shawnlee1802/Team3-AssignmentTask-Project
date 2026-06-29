@@ -1,0 +1,94 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f7fb;
+    color: #222;
+}
+
+.navbar {
+    background-color: #1f4e79;
+    color: white;
+    padding: 15px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+.container {
+    padding: 40px;
+}
+
+.hero {
+    background-color: white;
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.btn {
+    display: inline-block;
+    margin-top: 20px;
+    background-color: #1f4e79;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.subtitle {
+    color: #666;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.card {
+    background-color: white;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.card p {
+    font-size: 32px;
+    font-weight: bold;
+    color: #1f4e79;
+}
+
+.section {
+    background-color: white;
+    margin-top: 25px;
+    padding: 25px;
+    border-radius: 12px;
+}
+
+.progress-bar {
+    background-color: #ddd;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.progress {
+    background-color: #1f4e79;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+.deadline {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #ddd;
+    padding: 15px 0;
+}
