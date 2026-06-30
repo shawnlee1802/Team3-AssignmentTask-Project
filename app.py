@@ -1,4 +1,6 @@
-﻿from datetime import datetime
+﻿from datetime import datetime, date, timedelta
+import smtplib
+from email.message import EmailMessage
 
 from flask import Flask, render_template, request, redirect, url_for, flash
 from config import Config
@@ -11,6 +13,73 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
+sent_reminder_assignment_ids = set()
+
+def send_email(subject, body, recipient):
+    msg = EmailMessage()
+    msg["Subject"] = subject
+    msg["From"] = app.config.get("MAIL_DEFAULT_SENDER")
+    msg["To"] = recipient
+    msg.set_content(body)
+
+    server = app.config.get("MAIL_SERVER")
+    port = app.config.get("MAIL_PORT")
+    use_tls = app.config.get("MAIL_USE_TLS")
+    use_ssl = app.config.get("MAIL_USE_SSL")
+    username = app.config.get("MAIL_USERNAME")
+    password = app.config.get("MAIL_PASSWORD")
+
+    if use_ssl:
+        smtp = smtplib.SMTP_SSL(server, port, timeout=10)
+    else:
+        smtp = smtplib.SMTP(server, port, timeout=10)
+        if use_tls:
+            smtp.starttls()
+
+    if username and password:
+        smtp.login(username, password)
+
+    smtp.send_message(msg)
+    smtp.quit()
+
+
+def get_due_soon_assignments(days=3):
+    today = date.today()
+    max_date = today + timedelta(days=days)
+    return Assignment.query.filter(
+        Assignment.due_date != None,
+        Assignment.due_date >= today,
+        Assignment.due_date <= max_date,
+    ).all()
+
+
+def send_due_date_reminders():
+    recipient = app.config.get("MAIL_RECIPIENT")
+    if not recipient:
+        return
+
+    for assignment in get_due_soon_assignments(3):
+        if assignment.id in sent_reminder_assignment_ids:
+            continue
+
+        subject = f"Reminder: '{assignment.assignment_title}' due on {assignment.due_date}"
+        body = (
+            f"Assignment Reminder:\n\n"
+            f"Module: {assignment.module_name}\n"
+            f"Title: {assignment.assignment_title}\n"
+            f"Due Date: {assignment.due_date}\n"
+            f"Priority: {assignment.priority or 'N/A'}\n"
+            f"Status: {assignment.status or 'N/A'}\n\n"
+            f"This assignment is due within 3 days."
+        )
+
+        try:
+            send_email(subject, body, recipient)
+            sent_reminder_assignment_ids.add(assignment.id)
+        except Exception:
+            # Fail silently so existing app behavior is preserved.
+            pass
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -22,6 +91,7 @@ def dashboard():
 @app.route("/assignments")
 def assignments():
     all_assignments = Assignment.query.order_by(Assignment.due_date).all()
+    send_due_date_reminders()
     return render_template("assignments.html", assignments=all_assignments)
 
 
