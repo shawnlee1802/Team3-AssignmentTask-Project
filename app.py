@@ -86,7 +86,36 @@ def index():
 
 @app.route("/dashboard")
 def dashboard():
-    return render_template("dashboard.html")
+    today = date.today()
+    next_week = today + timedelta(days=7)
+
+    assignments = Assignment.query.all()
+
+    total = len(assignments)
+    completed = sum(1 for a in assignments if a.status == "Completed")
+    pending = total - completed
+
+    due_this_week = sum(
+        1 for a in assignments
+        if a.due_date and today <= a.due_date <= next_week and a.status != "Completed"
+    )
+
+    upcoming = sorted(
+        [a for a in assignments if a.due_date and a.due_date >= today and a.status != "Completed"],
+        key=lambda a: a.due_date
+    )[:5]
+
+    progress = int((completed / total) * 100) if total > 0 else 0
+
+    return render_template(
+        "dashboard.html",
+        total_assignments=total,
+        pending_assignments=pending,
+        completed_assignments=completed,
+        due_this_week=due_this_week,
+        upcoming_deadlines=upcoming,
+        progress_percentage=progress
+    )
 
 @app.route("/assignments")
 def assignments():
