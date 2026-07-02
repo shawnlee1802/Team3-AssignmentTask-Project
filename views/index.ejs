@@ -1,10 +1,118 @@
 <%- include("partials/header") %>
 
-<div class="hero">
-    <h1>Welcome to Assignment Tracker</h1>
-    <p>Track your assignments, deadlines, quizzes and project submissions in one place.</p>
+<section class="home-hero">
+    <div class="home-hero-copy">
+        <span class="home-kicker">Student deadline workspace</span>
+        <h1>Welcome to Assignment Tracker</h1>
+        <p>Keep modules, deadlines, priority levels, and completion status in one clean place.</p>
 
-    <a href="/dashboard" class="btn">Go to Dashboard</a>
-</div>
+        <div class="home-actions">
+            <a href="/assignments/add" class="btn btn-primary">Add Assignment</a>
+            <a href="#progress-overview" class="btn btn-outline-primary">Review Progress</a>
+        </div>
+    </div>
+
+    <div class="planner-preview" aria-label="Assignment preview">
+        <div class="planner-preview-header">
+            <strong>Today</strong>
+            <span><%= summary.due_this_week %> due this week</span>
+        </div>
+        <div class="planner-row">
+            <span class="planner-dot blue-dot"></span>
+            <div>
+                <strong>Check upcoming work</strong>
+                <p>Review deadlines before they pile up.</p>
+            </div>
+        </div>
+        <div class="planner-row">
+            <span class="planner-dot orange-dot"></span>
+            <div>
+                <strong>Prioritise tasks</strong>
+                <p>Mark important submissions as high priority.</p>
+            </div>
+        </div>
+        <div class="planner-row">
+            <span class="planner-dot green-dot"></span>
+            <div>
+                <strong>Track completion</strong>
+                <p>Update progress when assignments are done.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="home-summary-grid" aria-label="Assignment summary">
+    <div class="home-summary-card">
+        <span>Total</span>
+        <strong><%= summary.total_assignments %></strong>
+    </div>
+    <div class="home-summary-card">
+        <span>Pending</span>
+        <strong><%= summary.pending_assignments %></strong>
+    </div>
+    <div class="home-summary-card">
+        <span>Due This Week</span>
+        <strong><%= summary.due_this_week %></strong>
+    </div>
+    <div class="home-summary-card">
+        <span>Completed</span>
+        <strong><%= summary.completed_assignments %></strong>
+    </div>
+</section>
+
+<section class="home-link-grid">
+    <a href="/assignments" class="home-link-card">
+        <strong>Manage Assignments</strong>
+        <span>View, edit, and delete saved tasks.</span>
+    </a>
+    <a href="/assignments/add" class="home-link-card">
+        <strong>Add New Work</strong>
+        <span>Add module details, due date, priority, and status.</span>
+    </a>
+    <a href="#progress-overview" class="home-link-card">
+        <strong>Review Progress</strong>
+        <span>See completion, overdue work, and upcoming deadlines.</span>
+    </a>
+</section>
+
+<section id="progress-overview" class="home-dashboard-section">
+    <div class="dashboard-header">
+        <h1>Dashboard Overview</h1>
+        <p>Quick summary of your assignments and deadlines.</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="panel">
+            <h2>Progress Overview</h2>
+
+            <div class="progress-circle" style="--progress: <%= progress_percentage %>%;">
+                <span><%= progress_percentage %>%</span>
+            </div>
+
+            <p>Completed: <%= completed_assignments %> / <%= total_assignments %></p>
+            <p>Pending: <%= pending_assignments %></p>
+            <p>High Priority: <%= high_priority %></p>
+            <p>Overdue: <%= overdue %></p>
+        </div>
+
+        <div class="panel">
+            <h2>Upcoming Deadlines</h2>
+
+            <% if (upcoming_deadlines.length) { %>
+                <% upcoming_deadlines.forEach((assignment) => { %>
+                    <div class="deadline-item">
+                        <div>
+                            <strong><%= assignment.assignment_title %></strong>
+                            <p><%= assignment.module_name %></p>
+                        </div>
+                        <span><%= assignment.due_date %></span>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p class="text-muted mb-0">No upcoming deadlines.</p>
+            <% } %>
+        </div>
+    </div>
+</section>
 
 <%- include("partials/footer") %>

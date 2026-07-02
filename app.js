@@ -40,6 +40,48 @@ function addDaysIso(days) {
   return date.toISOString().slice(0, 10);
 }
 
+function buildAssignmentSummary(assignments) {
+  const today = todayIso();
+  const nextWeek = addDaysIso(7);
+
+  const total = assignments.length;
+  const completed = assignments.filter((a) => a.status === "Completed").length;
+  const pending = total - completed;
+  const highPriority = assignments.filter((a) => a.priority === "High").length;
+  const overdue = assignments.filter(
+    (a) => a.due_date && a.due_date < today && a.status !== "Completed"
+  ).length;
+  const dueThisWeek = assignments.filter(
+    (a) =>
+      a.due_date &&
+      a.due_date >= today &&
+      a.due_date <= nextWeek &&
+      a.status !== "Completed"
+  ).length;
+  const upcomingDeadlines = assignments
+    .filter((a) => a.due_date && a.due_date >= today && a.status !== "Completed")
+    .sort((a, b) => a.due_date.localeCompare(b.due_date))
+    .slice(0, 5);
+  const progress = total > 0 ? Math.floor((completed / total) * 100) : 0;
+
+  return {
+    summary: {
+      total_assignments: total,
+      pending_assignments: pending,
+      completed_assignments: completed,
+      due_this_week: dueThisWeek,
+    },
+    total_assignments: total,
+    pending_assignments: pending,
+    completed_assignments: completed,
+    due_this_week: dueThisWeek,
+    high_priority: highPriority,
+    overdue,
+    upcoming_deadlines: upcomingDeadlines,
+    progress_percentage: progress,
+  };
+}
+
 function validateAssignmentForm(body) {
   const errors = [];
   const assignment = {
@@ -138,49 +180,17 @@ async function sendDueDateReminders() {
   }
 }
 
-app.get("/", (req, res) => {
-  res.render("index");
-});
-
-app.get("/dashboard", async (req, res, next) => {
+app.get("/", async (req, res, next) => {
   try {
     const [assignments] = await pool.query("SELECT * FROM assignments");
-    const today = todayIso();
-    const nextWeek = addDaysIso(7);
-
-    const total = assignments.length;
-    const completed = assignments.filter((a) => a.status === "Completed").length;
-    const pending = total - completed;
-    const highPriority = assignments.filter((a) => a.priority === "High").length;
-    const overdue = assignments.filter(
-      (a) => a.due_date && a.due_date < today && a.status !== "Completed"
-    ).length;
-    const dueThisWeek = assignments.filter(
-      (a) =>
-        a.due_date &&
-        a.due_date >= today &&
-        a.due_date <= nextWeek &&
-        a.status !== "Completed"
-    ).length;
-    const upcomingDeadlines = assignments
-      .filter((a) => a.due_date && a.due_date >= today && a.status !== "Completed")
-      .sort((a, b) => a.due_date.localeCompare(b.due_date))
-      .slice(0, 5);
-    const progress = total > 0 ? Math.floor((completed / total) * 100) : 0;
-
-    res.render("dashboard", {
-      total_assignments: total,
-      pending_assignments: pending,
-      completed_assignments: completed,
-      due_this_week: dueThisWeek,
-      high_priority: highPriority,
-      overdue,
-      upcoming_deadlines: upcomingDeadlines,
-      progress_percentage: progress,
-    });
+    res.render("index", buildAssignmentSummary(assignments));
   } catch (error) {
     next(error);
   }
+});
+
+app.get("/dashboard", (req, res) => {
+  res.redirect("/#progress-overview");
 });
 
 app.get("/assignments", async (req, res, next) => {
