@@ -15,19 +15,23 @@ Assignment Tracker is a Node.js web app that uses Express, EJS templates, and a 
    npm install
    ```
 
-2. Create the MySQL database:
-
-   ```bash
-   mysql -u root -p < database/schema.sql
-   ```
-
-3. Create your local environment file:
+2. Create your local environment file:
 
    ```bash
    cp .env.example .env
    ```
 
-4. Update `.env` with your MySQL username and password.
+3. Update `.env` with your own MySQL username, password, and database name.
+
+   Each teammate should keep their own `.env` file on their own computer. Do not commit `.env` to GitHub.
+
+4. Create the MySQL database manually if you want to inspect it before starting the app:
+
+   ```bash
+   mysql -u root -p < database/schema.sql
+   ```
+
+   The app also creates the database and `assignments` table automatically on startup if the MySQL user has permission.
 
 5. Start the app:
 
@@ -47,6 +51,12 @@ The app runs at `http://localhost:3000`.
 - `DB_PASSWORD`: MySQL password
 - `DB_NAME`: MySQL database name
 - `MAIL_*`: optional SMTP settings for due-date reminder emails
+
+## Team Database Setup
+
+Each teammate should create their own `.env` file from `.env.example` and enter their own MySQL credentials. The `.env` file is ignored by Git, so passwords and local database settings are not pushed to GitHub.
+
+If everyone is running MySQL on their own laptop, they can all use the same `DB_NAME` value because each database is local to that laptop. If multiple teammates share one MySQL server, use different database names such as `assignment_tracker_shawn` and `assignment_tracker_teamname`.
 
 ## Main Routes
 
