@@ -5,11 +5,15 @@ __pycache__/
 # Virtual environment
 venv/
 
-# Database (only if using SQLite)
+# Old local SQLite database
 assignment_tracker.db
 
 # Flask
 instance/
+
+# Node
+node_modules/
+npm-debug.log*
 
 # Environment variables
 .env

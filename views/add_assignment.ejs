@@ -1,0 +1,19 @@
+<%- include("partials/header") %>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="h4 mb-4">Add Assignment</h1>
+                <form action="/assignments/add" method="post" novalidate>
+                    <%- include("partials/assignment_form", {
+                        assignment: form_data || {},
+                        submitLabel: "Save Assignment"
+                    }) %>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include("partials/footer") %>
