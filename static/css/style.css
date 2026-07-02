@@ -1,94 +1,92 @@
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f4f7fb;
-    color: #222;
+.dashboard-header {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 25px;
 }
 
-.navbar {
-    background-color: #1f4e79;
+.dashboard-header h1 {
+    margin: 0;
+    color: #1e3a8a;
+}
+
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.dash-card {
     color: white;
-    padding: 15px 40px;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.dash-card h3 {
+    margin: 0;
+}
+
+.dash-card p {
+    font-size: 36px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.blue { background: #1e3a8a; }
+.orange { background: #f59e0b; }
+.green { background: #22c55e; }
+.purple { background: #7c3aed; }
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 20px;
+}
+
+.panel {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.progress-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: conic-gradient(#1e3a8a {{ progress_percentage }}%, #e5e7eb 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+}
+
+.progress-circle span {
+    background: white;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 22px;
+}
+
+.deadline-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-left: 5px solid #1e3a8a;
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 12px;
 }
 
-.navbar a {
-    color: white;
-    text-decoration: none;
-    margin-left: 20px;
-}
-
-.container {
-    padding: 40px;
-}
-
-.hero {
-    background-color: white;
-    padding: 40px;
-    border-radius: 12px;
-    text-align: center;
-}
-
-.btn {
-    display: inline-block;
-    margin-top: 20px;
-    background-color: #1f4e79;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    text-decoration: none;
-}
-
-.subtitle {
+.deadline-item p {
+    margin: 5px 0 0;
     color: #666;
-}
-
-.cards {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-    margin-top: 25px;
-}
-
-.card {
-    background-color: white;
-    padding: 25px;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-.card p {
-    font-size: 32px;
-    font-weight: bold;
-    color: #1f4e79;
-}
-
-.section {
-    background-color: white;
-    margin-top: 25px;
-    padding: 25px;
-    border-radius: 12px;
-}
-
-.progress-bar {
-    background-color: #ddd;
-    border-radius: 20px;
-    overflow: hidden;
-}
-
-.progress {
-    background-color: #1f4e79;
-    color: white;
-    padding: 10px;
-    text-align: center;
-}
-
-.deadline {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid #ddd;
-    padding: 15px 0;
 }

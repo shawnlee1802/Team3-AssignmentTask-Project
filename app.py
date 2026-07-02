@@ -94,6 +94,8 @@ def dashboard():
     total = len(assignments)
     completed = sum(1 for a in assignments if a.status == "Completed")
     pending = total - completed
+    high_priority = sum(1 for a in assignments if a.priority == "High")
+    overdue = sum(1 for a in assignments if a.due_date and a.due_date < today and a.status != "Completed")
 
     due_this_week = sum(
         1 for a in assignments
@@ -113,6 +115,8 @@ def dashboard():
         pending_assignments=pending,
         completed_assignments=completed,
         due_this_week=due_this_week,
+        high_priority=high_priority,
+        overdue=overdue,
         upcoming_deadlines=upcoming,
         progress_percentage=progress
     )

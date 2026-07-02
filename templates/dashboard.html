@@ -2,53 +2,66 @@
 
 {% block content %}
 
-<h1>Dashboard Overview</h1>
-<p class="subtitle">Welcome back. Here is your assignment summary.</p>
+<div class="dashboard-header">
+    <h1>Dashboard Overview</h1>
+    <p>Quick summary of your assignments and deadlines.</p>
+</div>
 
-<div class="cards">
-    <div class="card">
-        <h3>Total Assignments</h3>
+<div class="dashboard-cards">
+    <div class="dash-card blue">
+        <h3>Total</h3>
         <p>{{ total_assignments }}</p>
+        <span>All assignments</span>
     </div>
 
-    <div class="card">
+    <div class="dash-card orange">
         <h3>Pending</h3>
         <p>{{ pending_assignments }}</p>
+        <span>Not completed</span>
     </div>
 
-    <div class="card">
+    <div class="dash-card green">
         <h3>Completed</h3>
         <p>{{ completed_assignments }}</p>
+        <span>Finished work</span>
     </div>
 
-    <div class="card">
+    <div class="dash-card purple">
         <h3>Due This Week</h3>
         <p>{{ due_this_week }}</p>
+        <span>Upcoming tasks</span>
     </div>
 </div>
 
-<div class="section">
-    <h2>Progress Overview</h2>
-    <div class="progress-bar">
-        <div class="progress" style="width: {{ progress_percentage }}%;">
-            {{ progress_percentage }}%
+<div class="dashboard-grid">
+
+    <div class="panel">
+        <h2>Progress Overview</h2>
+
+        <div class="progress-circle">
+            <span>{{ progress_percentage }}%</span>
         </div>
+
+        <p>Completed: {{ completed_assignments }} / {{ total_assignments }}</p>
+        <p>Pending: {{ pending_assignments }}</p>
+        <p>High Priority: {{ high_priority }}</p>
+        <p>Overdue: {{ overdue }}</p>
     </div>
-</div>
 
-<div class="section">
-    <h2>Upcoming Deadlines</h2>
+    <div class="panel">
+        <h2>Upcoming Deadlines</h2>
 
-    {% if upcoming_deadlines %}
         {% for assignment in upcoming_deadlines %}
-            <div class="deadline">
-                <strong>{{ assignment.assignment_title }}</strong>
-                <span>{{ assignment.module_name }} | Due: {{ assignment.due_date }}</span>
+            <div class="deadline-item">
+                <div>
+                    <strong>{{ assignment.assignment_title }}</strong>
+                    <p>{{ assignment.module_name }}</p>
+                </div>
+                <span>{{ assignment.due_date }}</span>
             </div>
         {% endfor %}
-    {% else %}
-        <p>No upcoming deadlines.</p>
-    {% endif %}
+    </div>
+
 </div>
 
 {% endblock %}
