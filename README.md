@@ -63,6 +63,7 @@ If everyone is running MySQL on their own laptop, they can all use the same `DB_
 - `/`: home page
 - `/dashboard`: redirects to the home page dashboard section
 - `/assignments`: assignment list
+- `/calendar`: monthly calendar and upcoming assignment timetable (`?month=YYYY-MM` supported)
 - `/assignments/add`: add assignment form
 - `/assignments/edit/:id`: edit assignment form
 

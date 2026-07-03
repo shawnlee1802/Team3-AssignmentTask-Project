@@ -6,6 +6,7 @@ const session = require("express-session");
 const flash = require("connect-flash");
 const nodemailer = require("nodemailer");
 const { pool, initDb } = require("./db");
+const { buildCalendar } = require("./calendar");
 
 const app = express();
 const sentReminderAssignmentIds = new Set();
@@ -200,6 +201,25 @@ app.get("/assignments", async (req, res, next) => {
       "SELECT * FROM assignments ORDER BY due_date ASC"
     );
     res.render("assignments", { assignments });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/calendar", async (req, res, next) => {
+  try {
+    const [assignments] = await pool.query(
+      "SELECT * FROM assignments WHERE due_date IS NOT NULL ORDER BY due_date ASC, priority ASC"
+    );
+    const calendar = buildCalendar(assignments, req.query.month);
+    const upcomingAssignments = assignments
+      .filter(
+        (assignment) =>
+          assignment.due_date >= calendar.today && assignment.status !== "Completed"
+      )
+      .slice(0, 6);
+
+    res.render("calendar", { ...calendar, upcomingAssignments });
   } catch (error) {
     next(error);
   }

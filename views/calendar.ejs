@@ -1,0 +1,93 @@
+<%- include("partials/header") %>
+
+<div class="calendar-page-header">
+    <div>
+        <h1 class="h3 mb-1">Calendar &amp; Timetable</h1>
+        <p class="text-muted mb-0">Your assignment deadlines at a glance.</p>
+    </div>
+    <a href="/assignments/add" class="btn btn-primary">+ Add Assignment</a>
+</div>
+
+<div class="calendar-layout">
+    <section class="calendar-card" aria-labelledby="calendar-month-label">
+        <div class="calendar-toolbar">
+            <a class="btn btn-sm btn-outline-primary" href="/calendar?month=<%= previousMonth %>" aria-label="Previous month">&larr;</a>
+            <div class="calendar-title">
+                <h2 id="calendar-month-label"><%= monthLabel %></h2>
+                <% if (currentMonth !== todayMonth) { %>
+                    <a href="/calendar?month=<%= todayMonth %>">Back to today</a>
+                <% } %>
+            </div>
+            <a class="btn btn-sm btn-outline-primary" href="/calendar?month=<%= nextMonth %>" aria-label="Next month">&rarr;</a>
+        </div>
+
+        <div class="calendar-grid calendar-weekdays" aria-hidden="true">
+            <% ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach((dayName) => { %>
+                <div><%= dayName %></div>
+            <% }) %>
+        </div>
+
+        <div class="calendar-month-grid">
+            <% weeks.forEach((week) => { %>
+                <div class="calendar-grid calendar-week">
+                    <% week.forEach((day) => { %>
+                        <% if (!day) { %>
+                            <div class="calendar-day calendar-day-empty" aria-hidden="true"></div>
+                        <% } else { %>
+                            <div class="calendar-day <%= day.isToday ? 'calendar-today' : '' %>">
+                                <div class="calendar-date-row">
+                                    <time datetime="<%= day.date %>" class="calendar-date"><%= day.day %></time>
+                                    <% if (day.assignments.length) { %>
+                                        <span class="calendar-count"><%= day.assignments.length %></span>
+                                    <% } %>
+                                </div>
+                                <div class="calendar-events">
+                                    <% day.assignments.forEach((assignment) => { %>
+                                        <% const priorityClass = (assignment.priority || 'Low').toLowerCase(); %>
+                                        <a class="calendar-event priority-<%= priorityClass %> <%= assignment.status === 'Completed' ? 'event-completed' : '' %>"
+                                           href="/assignments/edit/<%= assignment.id %>"
+                                           title="<%= assignment.module_name %>: <%= assignment.assignment_title %> (<%= assignment.status %>)">
+                                            <span><%= assignment.assignment_title %></span>
+                                            <small><%= assignment.module_name %></small>
+                                        </a>
+                                    <% }) %>
+                                </div>
+                            </div>
+                        <% } %>
+                    <% }) %>
+                </div>
+            <% }) %>
+        </div>
+    </section>
+
+    <aside class="calendar-sidebar">
+        <div class="calendar-side-card">
+            <h2>Upcoming</h2>
+            <% if (upcomingAssignments.length) { %>
+                <% upcomingAssignments.forEach((assignment) => { %>
+                    <a class="upcoming-item" href="/assignments/edit/<%= assignment.id %>">
+                        <time datetime="<%= assignment.due_date %>">
+                            <strong><%= new Date(assignment.due_date + 'T00:00:00').toLocaleDateString('en-SG', { day: '2-digit' }) %></strong>
+                            <span><%= new Date(assignment.due_date + 'T00:00:00').toLocaleDateString('en-SG', { month: 'short' }) %></span>
+                        </time>
+                        <span>
+                            <strong><%= assignment.assignment_title %></strong>
+                            <small><%= assignment.module_name %> &middot; <%= assignment.priority %></small>
+                        </span>
+                    </a>
+                <% }) %>
+            <% } else { %>
+                <p class="text-muted mb-0">No upcoming deadlines. Nicely done!</p>
+            <% } %>
+        </div>
+
+        <div class="calendar-side-card">
+            <h2>Priority key</h2>
+            <div class="calendar-legend"><span class="legend-dot priority-high"></span> High</div>
+            <div class="calendar-legend"><span class="legend-dot priority-medium"></span> Medium</div>
+            <div class="calendar-legend"><span class="legend-dot priority-low"></span> Low</div>
+        </div>
+    </aside>
+</div>
+
+<%- include("partials/footer") %>

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "node --check app.js && node --check db.js"
+    "test": "node --check app.js && node --check db.js && node --check calendar.js"
   },
   "dependencies": {
     "connect-flash": "^0.1.1",
