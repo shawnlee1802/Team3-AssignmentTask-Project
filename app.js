@@ -3,7 +3,6 @@ require("dotenv").config({ quiet: true });
 const express = require("express");
 const path = require("path");
 const session = require("express-session");
-const flash = require("connect-flash");
 const nodemailer = require("nodemailer");
 const { pool, initDb } = require("./db");
 const { buildCalendar } = require("./calendar");
@@ -24,10 +23,24 @@ app.use(
     saveUninitialized: false,
   })
 );
-app.use(flash());
 
 app.use((req, res, next) => {
-  res.locals.messages = req.flash();
+  req.session.flashMessages = req.session.flashMessages || {};
+  req.flash = (type, message) => {
+    if (message === undefined) {
+      const messages = req.session.flashMessages[type] || [];
+      delete req.session.flashMessages[type];
+      return messages;
+    }
+
+    req.session.flashMessages[type] = req.session.flashMessages[type] || [];
+    req.session.flashMessages[type].push(message);
+    return req.session.flashMessages[type];
+  };
+
+  const messages = req.session.flashMessages;
+  req.session.flashMessages = {};
+  res.locals.messages = messages;
   next();
 });
 
