@@ -17,6 +17,7 @@
                 <th>Due Date</th>
                 <th>Priority</th>
                 <th>Status</th>
+                <th>Reminder</th>
                 <th class="text-end">Actions</th>
             </tr>
         </thead>
@@ -29,6 +30,13 @@
                         <td><%= assignment.due_date || "N/A" %></td>
                         <td><%= assignment.priority || "N/A" %></td>
                         <td><%= assignment.status || "N/A" %></td>
+                        <td>
+                            <% if (assignment.reminderStatus) { %>
+                                <span class="<%= assignment.reminderStatus.className %>"><%= assignment.reminderStatus.label %></span>
+                            <% } else { %>
+                                <span class="text-muted">On Track</span>
+                            <% } %>
+                        </td>
                         <td class="text-end">
                             <a href="/assignments/edit/<%= assignment.id %>" class="btn btn-sm btn-outline-secondary me-2">Edit</a>
                             <form action="/assignments/delete/<%= assignment.id %>" method="post" class="d-inline">
@@ -39,7 +47,7 @@
                 <% }) %>
             <% } else { %>
                 <tr>
-                    <td colspan="6" class="text-center py-4">No assignments found. Use the button above to add a new assignment.</td>
+                    <td colspan="7" class="text-center py-4">No assignments found. Use the button above to add a new assignment.</td>
                 </tr>
             <% } %>
         </tbody>

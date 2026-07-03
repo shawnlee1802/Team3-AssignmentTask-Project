@@ -36,6 +36,16 @@ async function initDb() {
   await serverConnection.end();
 
   await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(100) NOT NULL,
+      email VARCHAR(255) NOT NULL UNIQUE,
+      password_hash VARCHAR(255) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS assignments (
       id INT AUTO_INCREMENT PRIMARY KEY,
       module_name VARCHAR(100) NOT NULL,
@@ -44,9 +54,21 @@ async function initDb() {
       due_date DATE,
       priority VARCHAR(20) DEFAULT 'Low',
       status VARCHAR(30) DEFAULT 'Not Started',
+      user_id INT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  const [columns] = await pool.query(
+    `SELECT COLUMN_NAME
+     FROM INFORMATION_SCHEMA.COLUMNS
+     WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'assignments'`,
+    [dbName]
+  );
+
+  if (!columns.some((column) => column.COLUMN_NAME === "user_id")) {
+    await pool.query("ALTER TABLE assignments ADD COLUMN user_id INT");
+  }
 }
 
 module.exports = {

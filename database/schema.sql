@@ -1,6 +1,14 @@
 CREATE DATABASE IF NOT EXISTS assignment_tracker;
 USE assignment_tracker;
 
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS assignments (
   id INT AUTO_INCREMENT PRIMARY KEY,
   module_name VARCHAR(100) NOT NULL,
@@ -9,5 +17,8 @@ CREATE TABLE IF NOT EXISTS assignments (
   due_date DATE,
   priority VARCHAR(20) DEFAULT 'Low',
   status VARCHAR(30) DEFAULT 'Not Started',
+  user_id INT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE assignments ADD COLUMN IF NOT EXISTS user_id INT;

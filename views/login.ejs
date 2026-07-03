@@ -1,0 +1,30 @@
+<%- include("partials/header") %>
+
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="h3 mb-2">Log In</h1>
+                <p class="text-muted mb-4">Access your personal assignment tracker dashboard.</p>
+
+                <form action="/login" method="post">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="email" name="email" value="<%= form_data.email || "" %>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Log In</button>
+                </form>
+
+                <p class="text-center mt-3 mb-0">
+                    Don’t have an account? <a href="/signup">Sign up</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include("partials/footer") %>
