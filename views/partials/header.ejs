@@ -25,23 +25,6 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/calendar">Calendar</a>
                     </li>
-                    <% if (currentUser) { %>
-                        <li class="nav-item">
-                            <span class="navbar-text text-white me-2">Hello, <%= currentUser.name %></span>
-                        </li>
-                        <li class="nav-item">
-                            <form action="/logout" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
-                            </form>
-                        </li>
-                    <% } else { %>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/login">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/signup">Sign Up</a>
-                        </li>
-                    <% } %>
                 </ul>
             </div>
         </div>
