@@ -397,6 +397,26 @@ app.post("/assignments/delete/:id", async (req, res, next) => {
   }
 });
 
+app.get('/login', (req, res) => {
+    res.render('login', { error: null });
+});
+
+app.get('/register', (req, res) => {
+    res.render('register', { error: null });
+});
+
+app.post('/register', (req, res) => {
+    const { name, email, password } = req.body;
+    console.log('Registration attempt:', { name, email, password });
+    res.redirect('/login');
+});
+
+app.post('/login', (req, res) => {
+    const { email, password } = req.body;
+    console.log('Login attempt:', { email, password });
+    res.redirect('/dashboard');
+});
+
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).render("error", {

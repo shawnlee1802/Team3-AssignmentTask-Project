@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+
+    <% if (locals.error) { %>
+        <p style="color:red;"><%= error %></p>
+    <% } %>
+
+    <form action="/login" method="POST">
+        <p>
+            <label>Email:</label><br>
+            <input type="email" name="email" required>
+        </p>
+        <p>
+            <label>Password:</label><br>
+            <input type="password" name="password" required>
+        </p>
+        <button type="submit">Login</button>
+    </form>
+
+    <p>Don't have an account? <a href="/register">Sign up here</a></p>
+</body>
+</html>
