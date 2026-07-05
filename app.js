@@ -79,20 +79,16 @@ function buildAssignmentSummary(assignments) {
   const progress = total > 0 ? Math.floor((completed / total) * 100) : 0;
 
   return {
-    summary: {
-      total_assignments: total,
-      pending_assignments: pending,
-      completed_assignments: completed,
-      due_this_week: dueThisWeek,
+    dashboard: {
+      total,
+      pending,
+      completed,
+      dueThisWeek,
+      highPriority,
+      overdue,
+      progress,
     },
-    total_assignments: total,
-    pending_assignments: pending,
-    completed_assignments: completed,
-    due_this_week: dueThisWeek,
-    high_priority: highPriority,
-    overdue,
-    upcoming_deadlines: upcomingDeadlines,
-    progress_percentage: progress,
+    upcomingDeadlines,
   };
 }
 

@@ -95,38 +95,11 @@
 .orange-dot { background: #f59e0b; }
 .green-dot { background: #22c55e; }
 
-.home-summary-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
-    margin: 12px 0 24px;
-}
-
-.home-summary-card,
 .home-link-card {
     background: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
-}
-
-.home-summary-card {
-    padding: 18px;
-}
-
-.home-summary-card span {
-    display: block;
-    color: #6b7280;
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.home-summary-card strong {
-    display: block;
-    margin-top: 8px;
-    color: #111827;
-    font-size: 32px;
-    line-height: 1;
 }
 
 .home-link-grid {
@@ -181,92 +154,13 @@
     color: #1e3a8a;
 }
 
-.dashboard-cards {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
-    margin-bottom: 25px;
-}
-
-.dash-card {
-    color: white;
-    padding: 25px;
-    border-radius: 16px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.dash-card h3 {
-    margin: 0;
-}
-
-.dash-card p {
-    font-size: 36px;
-    font-weight: bold;
-    margin: 10px 0;
-}
-
 .blue { background: #1e3a8a; }
 .orange { background: #f59e0b; }
 .green { background: #22c55e; }
 .purple { background: #7c3aed; }
 
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    gap: 20px;
-}
-
-.panel {
-    background: white;
-    padding: 25px;
-    border-radius: 16px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-}
-
-.progress-circle {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    background: conic-gradient(#1e3a8a var(--progress), #e5e7eb 0);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 20px auto;
-}
-
-.progress-circle span {
-    background: white;
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 22px;
-}
-
-.deadline-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-left: 5px solid #1e3a8a;
-    background: #f8fafc;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 12px;
-}
-
-.deadline-item p {
-    margin: 5px 0 0;
-    color: #666;
-}
-
 @media (max-width: 900px) {
     .home-hero,
-    .dashboard-cards,
-    .dashboard-grid,
-    .home-summary-grid,
     .home-link-grid {
         grid-template-columns: 1fr;
     }

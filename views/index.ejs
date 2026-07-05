@@ -15,7 +15,7 @@
     <div class="planner-preview" aria-label="Assignment preview">
         <div class="planner-preview-header">
             <strong>Today</strong>
-            <span><%= summary.due_this_week %> due this week</span>
+            <span><%= dashboard.dueThisWeek %> due this week</span>
         </div>
         <div class="planner-row">
             <span class="planner-dot blue-dot"></span>
@@ -41,25 +41,6 @@
     </div>
 </section>
 
-<section class="home-summary-grid" aria-label="Assignment summary">
-    <div class="home-summary-card">
-        <span>Total</span>
-        <strong><%= summary.total_assignments %></strong>
-    </div>
-    <div class="home-summary-card">
-        <span>Pending</span>
-        <strong><%= summary.pending_assignments %></strong>
-    </div>
-    <div class="home-summary-card">
-        <span>Due This Week</span>
-        <strong><%= summary.due_this_week %></strong>
-    </div>
-    <div class="home-summary-card">
-        <span>Completed</span>
-        <strong><%= summary.completed_assignments %></strong>
-    </div>
-</section>
-
 <section class="home-link-grid">
     <a href="/assignments" class="home-link-card">
         <strong>Manage Assignments</strong>
@@ -76,41 +57,88 @@
 </section>
 
 <section id="progress-overview" class="home-dashboard-section">
-    <div class="dashboard-header">
+    <div class="dashboard-header bg-white p-4 rounded shadow-sm mb-4">
         <h1>Dashboard Overview</h1>
-        <p>Quick summary of your assignments and deadlines.</p>
+        <p class="mb-0 text-muted">Quick summary of your assignments and deadlines.</p>
     </div>
 
-    <div class="dashboard-grid">
-        <div class="panel">
-            <h2>Progress Overview</h2>
-
-            <div class="progress-circle" style="--progress: <%= progress_percentage %>%;">
-                <span><%= progress_percentage %>%</span>
+    <div class="row g-3 mb-4" aria-label="Assignment summary">
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <span class="text-muted fw-semibold">Total</span>
+                    <strong class="d-block fs-2"><%= dashboard.total %></strong>
+                </div>
             </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <span class="text-muted fw-semibold">Pending</span>
+                    <strong class="d-block fs-2"><%= dashboard.pending %></strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <span class="text-muted fw-semibold">Due This Week</span>
+                    <strong class="d-block fs-2"><%= dashboard.dueThisWeek %></strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <span class="text-muted fw-semibold">Completed</span>
+                    <strong class="d-block fs-2"><%= dashboard.completed %></strong>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <p>Completed: <%= completed_assignments %> / <%= total_assignments %></p>
-            <p>Pending: <%= pending_assignments %></p>
-            <p>High Priority: <%= high_priority %></p>
-            <p>Overdue: <%= overdue %></p>
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h5">Progress Overview</h2>
+
+                    <div class="progress my-3" role="progressbar" aria-label="Assignment completion" aria-valuenow="<%= dashboard.progress %>" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar" style="width: <%= dashboard.progress %>%;">
+                            <%= dashboard.progress %>%
+                        </div>
+                    </div>
+
+                    <p class="mb-1">Completed: <%= dashboard.completed %> / <%= dashboard.total %></p>
+                    <p class="mb-1">Pending: <%= dashboard.pending %></p>
+                    <p class="mb-1">High Priority: <%= dashboard.highPriority %></p>
+                    <p class="mb-0">Overdue: <%= dashboard.overdue %></p>
+                </div>
+            </div>
         </div>
 
-        <div class="panel">
-            <h2>Upcoming Deadlines</h2>
+        <div class="col-lg-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h2 class="h5">Upcoming Deadlines</h2>
 
-            <% if (upcoming_deadlines.length) { %>
-                <% upcoming_deadlines.forEach((assignment) => { %>
-                    <div class="deadline-item">
-                        <div>
-                            <strong><%= assignment.assignment_title %></strong>
-                            <p><%= assignment.module_name %></p>
+                    <% if (upcomingDeadlines.length) { %>
+                        <div class="list-group list-group-flush">
+                            <% upcomingDeadlines.forEach((assignment) => { %>
+                                <div class="list-group-item px-0 d-flex justify-content-between gap-3">
+                                    <div>
+                                        <strong><%= assignment.assignment_title %></strong>
+                                        <p class="mb-0 text-muted"><%= assignment.module_name %></p>
+                                    </div>
+                                    <span><%= assignment.due_date %></span>
+                                </div>
+                            <% }) %>
                         </div>
-                        <span><%= assignment.due_date %></span>
-                    </div>
-                <% }) %>
-            <% } else { %>
-                <p class="text-muted mb-0">No upcoming deadlines.</p>
-            <% } %>
+                    <% } else { %>
+                        <p class="text-muted mb-0">No upcoming deadlines.</p>
+                    <% } %>
+                </div>
+            </div>
         </div>
     </div>
 </section>
