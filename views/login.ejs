@@ -1,27 +1,130 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+    <title>Login - Assignment Tracker</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f7fc;
+        }
+        .login-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(to right, #ffffff, #f4f7fc);
+        }
+        .login-card {
+            background: white;
+            padding: 48px 40px;
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #e9edf2;
+        }
+        .login-card h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #1c2b3a;
+        }
+        .login-card .subtitle {
+            color: #6b7b8a;
+            font-size: 15px;
+            margin-bottom: 28px;
+        }
+        .login-card label {
+            font-weight: 600;
+            font-size: 14px;
+            color: #2d3e4f;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .login-card input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #dce3eb;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #fafbfc;
+            transition: 0.2s;
+            margin-bottom: 18px;
+            box-sizing: border-box;
+        }
+        .login-card input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        .login-btn {
+            width: 100%;
+            background: #2c7be5;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-weight: 700;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 4px;
+        }
+        .login-btn:hover {
+            background: #1a5fc7;
+        }
+        .login-card .signup-link {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 15px;
+            color: #4b5f71;
+        }
+        .login-card .signup-link a {
+            color: #2c7be5;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .login-card .signup-link a:hover {
+            text-decoration: underline;
+        }
+        .alert {
+            background: #fee9e7;
+            border-left: 4px solid #e34843;
+            color: #b33630;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+    </style>
 </head>
 <body>
-    <h1>Login</h1>
+    <div class="login-wrapper">
+        <div class="login-card">
+            <h1>Welcome back</h1>
+            <p class="subtitle">Log in to manage your assignments</p>
 
-    <% if (locals.error) { %>
-        <p style="color:red;"><%= error %></p>
-    <% } %>
+            <% if (locals.error) { %>
+                <div class="alert"><%= error %></div>
+            <% } %>
 
-    <form action="/login" method="POST">
-        <p>
-            <label>Email:</label><br>
-            <input type="email" name="email" required>
-        </p>
-        <p>
-            <label>Password:</label><br>
-            <input type="password" name="password" required>
-        </p>
-        <button type="submit">Login</button>
-    </form>
+            <form action="/login" method="POST">
+                <label for="email">Email address</label>
+                <input type="email" id="email" name="email" placeholder="you@example.com" required>
 
-    <p>Don't have an account? <a href="/register">Sign up here</a></p>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+
+                <button type="submit" class="login-btn">Log In</button>
+            </form>
+
+            <div class="signup-link">
+                Don’t have an account? <a href="/register">Sign up</a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
