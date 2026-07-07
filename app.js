@@ -57,6 +57,7 @@ function addDaysIso(days) {
 function buildAssignmentSummary(assignments) {
   const today = todayIso();
   const nextWeek = addDaysIso(7);
+  const reminderOverview = getReminderOverview(assignments);
 
   const total = assignments.length;
   const completed = assignments.filter((a) => a.status === "Completed").length;
@@ -73,9 +74,10 @@ function buildAssignmentSummary(assignments) {
       a.status !== "Completed"
   ).length;
   const upcomingDeadlines = assignments
-    .filter((a) => a.due_date && a.due_date >= today && a.status !== "Completed")
+    .filter((a) => a.due_date && a.status !== "Completed")
     .sort((a, b) => a.due_date.localeCompare(b.due_date))
-    .slice(0, 5);
+    .slice(0, 5)
+    .map(decorateAssignmentReminder);
   const progress = total > 0 ? Math.floor((completed / total) * 100) : 0;
 
   return {
@@ -87,6 +89,7 @@ function buildAssignmentSummary(assignments) {
       highPriority,
       overdue,
       progress,
+      reminderOverview,
     },
     upcomingDeadlines,
   };
@@ -157,6 +160,94 @@ function getReminderStatus(dueDate) {
   }
 
   return null;
+}
+
+function getReminderCountdown(dueDate) {
+  if (!dueDate) {
+    return null;
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const due = new Date(`${dueDate}T00:00:00`);
+  if (Number.isNaN(due.getTime())) {
+    return null;
+  }
+  due.setHours(0, 0, 0, 0);
+
+  const diffDays = Math.round((due.getTime() - today.getTime()) / 86400000);
+
+  if (diffDays < 0) {
+    return {
+      text: `Overdue by ${Math.abs(diffDays)} days`,
+      className: "text-danger-emphasis",
+    };
+  }
+
+  if (diffDays === 0) {
+    return {
+      text: "Due Today",
+      className: "text-warning-emphasis",
+    };
+  }
+
+  if (diffDays === 1) {
+    return {
+      text: "Due Tomorrow",
+      className: "text-warning-emphasis",
+    };
+  }
+
+  if (diffDays <= 3) {
+    return {
+      text: `${diffDays} days remaining`,
+      className: "text-info-emphasis",
+    };
+  }
+
+  return {
+    text: `${diffDays} days remaining`,
+    className: "text-muted",
+  };
+}
+
+function decorateAssignmentReminder(assignment) {
+  return {
+    ...assignment,
+    reminderStatus: getReminderStatus(assignment.due_date),
+    reminderCountdown: getReminderCountdown(assignment.due_date),
+  };
+}
+
+function getReminderOverview(assignments) {
+  return assignments.reduce(
+    (overview, assignment) => {
+      if (!assignment.due_date || assignment.status === "Completed") {
+        return overview;
+      }
+
+      const reminderStatus = getReminderStatus(assignment.due_date);
+      if (!reminderStatus) {
+        return overview;
+      }
+
+      if (reminderStatus.label === "Overdue Warning") {
+        overview.overdue += 1;
+      } else if (reminderStatus.label === "Urgent Reminder") {
+        overview.urgent += 1;
+      } else if (reminderStatus.label === "Upcoming Reminder") {
+        overview.upcoming += 1;
+      }
+
+      return overview;
+    },
+    {
+      overdue: 0,
+      urgent: 0,
+      upcoming: 0,
+    }
+  );
 }
 
 async function sendEmail(subject, body, recipient) {
@@ -249,10 +340,7 @@ app.get("/assignments", async (req, res, next) => {
   try {
     await sendDueDateReminders();
     const [assignments] = await pool.query("SELECT * FROM assignments ORDER BY due_date ASC");
-    const assignmentRows = assignments.map((assignment) => ({
-      ...assignment,
-      reminderStatus: getReminderStatus(assignment.due_date),
-    }));
+    const assignmentRows = assignments.map(decorateAssignmentReminder);
     res.render("assignments", { assignments: assignmentRows });
   } catch (error) {
     next(error);

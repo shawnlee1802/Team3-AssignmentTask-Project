@@ -97,6 +97,36 @@
         </div>
     </div>
 
+    <div class="mb-4">
+        <h2 class="h5 mb-3">Reminder Overview</h2>
+        <div class="row g-3" aria-label="Reminder summary">
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100 border-0 border-start border-4 border-danger">
+                    <div class="card-body">
+                        <span class="text-danger-emphasis fw-semibold d-block">Overdue Assignments</span>
+                        <strong class="d-block fs-2 mt-2"><%= dashboard.reminderOverview.overdue %></strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100 border-0 border-start border-4 border-warning">
+                    <div class="card-body">
+                        <span class="text-warning-emphasis fw-semibold d-block">Urgent Assignments</span>
+                        <strong class="d-block fs-2 mt-2"><%= dashboard.reminderOverview.urgent %></strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100 border-0 border-start border-4 border-info">
+                    <div class="card-body">
+                        <span class="text-info-emphasis fw-semibold d-block">Upcoming Assignments</span>
+                        <strong class="d-block fs-2 mt-2"><%= dashboard.reminderOverview.upcoming %></strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-4">
         <div class="col-lg-5">
             <div class="card shadow-sm h-100">
@@ -129,6 +159,9 @@
                                     <div>
                                         <strong><%= assignment.assignment_title %></strong>
                                         <p class="mb-0 text-muted"><%= assignment.module_name %></p>
+                                        <% if (assignment.reminderCountdown) { %>
+                                            <small class="d-block mt-1 <%= assignment.reminderCountdown.className %>"><%= assignment.reminderCountdown.text %></small>
+                                        <% } %>
                                     </div>
                                     <span><%= assignment.due_date %></span>
                                 </div>

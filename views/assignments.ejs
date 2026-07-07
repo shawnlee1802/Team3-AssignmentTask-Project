@@ -24,7 +24,14 @@
         <tbody>
             <% if (assignments.length) { %>
                 <% assignments.forEach((assignment) => { %>
-                    <tr>
+                    <% const rowClass = assignment.reminderStatus
+                        ? assignment.reminderStatus.label === "Overdue Warning"
+                            ? "table-danger"
+                            : assignment.reminderStatus.label === "Urgent Reminder"
+                                ? "table-warning"
+                                : "table-info"
+                        : ""; %>
+                    <tr class="<%= rowClass %>">
                         <td><%= assignment.assignment_title %></td>
                         <td><%= assignment.module_name %></td>
                         <td><%= assignment.due_date || "N/A" %></td>
@@ -35,6 +42,9 @@
                                 <span class="<%= assignment.reminderStatus.className %>"><%= assignment.reminderStatus.label %></span>
                             <% } else { %>
                                 <span class="text-muted">On Track</span>
+                            <% } %>
+                            <% if (assignment.reminderCountdown) { %>
+                                <small class="d-block mt-1 <%= assignment.reminderCountdown.className %>"><%= assignment.reminderCountdown.text %></small>
                             <% } %>
                         </td>
                         <td class="text-end">
