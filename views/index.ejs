@@ -52,7 +52,7 @@
             <div class="card-body">
                 <h2 class="h5">Progress</h2>
                 <div class="progress my-3" role="progressbar" aria-label="Assignment completion" aria-valuenow="<%= dashboard.progress %>" aria-valuemin="0" aria-valuemax="100">
-                    <div class="progress-bar" style="width: <%= dashboard.progress %>%;">
+                    <div class="progress-bar" <%- `style="width: ${dashboard.progress}%;"` %>>
                         <%= dashboard.progress %>%
                     </div>
                 </div>
