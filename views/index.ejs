@@ -1,179 +1,107 @@
 <%- include("partials/header") %>
 
-<section class="home-hero">
-    <div class="home-hero-copy">
-        <span class="home-kicker">Student deadline workspace</span>
-        <h1>Welcome to Assignment Tracker</h1>
-        <p>Keep modules, deadlines, priority levels, and completion status in one clean place.</p>
-
-        <div class="home-actions">
-            <a href="/assignments/add" class="btn btn-primary">Add Assignment</a>
-            <a href="#progress-overview" class="btn btn-outline-primary">Review Progress</a>
-        </div>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+    <div>
+        <h1 class="h3 mb-1">Dashboard</h1>
+        <p class="text-muted mb-0">Simple overview of your assignments and deadlines.</p>
     </div>
+    <div class="d-flex gap-2 mt-3 mt-md-0">
+        <a href="/assignments/add" class="btn btn-primary">Add Assignment</a>
+        <a href="/assignments" class="btn btn-outline-primary">View Assignments</a>
+    </div>
+</div>
 
-    <div class="planner-preview" aria-label="Assignment preview">
-        <div class="planner-preview-header">
-            <strong>Today</strong>
-            <span><%= dashboard.dueThisWeek %> due this week</span>
-        </div>
-        <div class="planner-row">
-            <span class="planner-dot blue-dot"></span>
-            <div>
-                <strong>Check upcoming work</strong>
-                <p>Review deadlines before they pile up.</p>
-            </div>
-        </div>
-        <div class="planner-row">
-            <span class="planner-dot orange-dot"></span>
-            <div>
-                <strong>Prioritise tasks</strong>
-                <p>Mark important submissions as high priority.</p>
-            </div>
-        </div>
-        <div class="planner-row">
-            <span class="planner-dot green-dot"></span>
-            <div>
-                <strong>Track completion</strong>
-                <p>Update progress when assignments are done.</p>
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1">Total Assignments</p>
+                <h2 class="mb-0"><%= dashboard.total %></h2>
             </div>
         </div>
     </div>
-</section>
-
-<section class="home-link-grid">
-    <a href="/assignments" class="home-link-card">
-        <strong>Manage Assignments</strong>
-        <span>View, edit, and delete saved tasks.</span>
-    </a>
-    <a href="/assignments/add" class="home-link-card">
-        <strong>Add New Work</strong>
-        <span>Add module details, due date, priority, and status.</span>
-    </a>
-    <a href="/calendar" class="home-link-card">
-        <strong>Calendar &amp; Timetable</strong>
-        <span>See every assignment deadline in a monthly timetable.</span>
-    </a>
-</section>
-
-<section id="progress-overview" class="home-dashboard-section">
-    <div class="dashboard-header bg-white p-4 rounded shadow-sm mb-4">
-        <h1>Dashboard Overview</h1>
-        <p class="mb-0 text-muted">Quick summary of your assignments and deadlines.</p>
-    </div>
-
-    <div class="row g-3 mb-4" aria-label="Assignment summary">
-        <div class="col-md-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <span class="text-muted fw-semibold">Total</span>
-                    <strong class="d-block fs-2"><%= dashboard.total %></strong>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <span class="text-muted fw-semibold">Pending</span>
-                    <strong class="d-block fs-2"><%= dashboard.pending %></strong>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <span class="text-muted fw-semibold">Due This Week</span>
-                    <strong class="d-block fs-2"><%= dashboard.dueThisWeek %></strong>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <span class="text-muted fw-semibold">Completed</span>
-                    <strong class="d-block fs-2"><%= dashboard.completed %></strong>
-                </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1">Pending</p>
+                <h2 class="mb-0"><%= dashboard.pending %></h2>
             </div>
         </div>
     </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1">Due This Week</p>
+                <h2 class="mb-0"><%= dashboard.dueThisWeek %></h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <p class="text-muted mb-1">Completed</p>
+                <h2 class="mb-0"><%= dashboard.completed %></h2>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <div class="mb-4">
-        <h2 class="h5 mb-3">Reminder Overview</h2>
-        <div class="row g-3" aria-label="Reminder summary">
-            <div class="col-md-4">
-                <div class="card shadow-sm h-100 border-0 border-start border-4 border-danger">
-                    <div class="card-body">
-                        <span class="text-danger-emphasis fw-semibold d-block">Overdue Assignments</span>
-                        <strong class="d-block fs-2 mt-2"><%= dashboard.reminderOverview.overdue %></strong>
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h5">Progress</h2>
+                <div class="progress my-3" role="progressbar" aria-label="Assignment completion" aria-valuenow="<%= dashboard.progress %>" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar" style="width: <%= dashboard.progress %>%;">
+                        <%= dashboard.progress %>%
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card shadow-sm h-100 border-0 border-start border-4 border-warning">
-                    <div class="card-body">
-                        <span class="text-warning-emphasis fw-semibold d-block">Urgent Assignments</span>
-                        <strong class="d-block fs-2 mt-2"><%= dashboard.reminderOverview.urgent %></strong>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card shadow-sm h-100 border-0 border-start border-4 border-info">
-                    <div class="card-body">
-                        <span class="text-info-emphasis fw-semibold d-block">Upcoming Assignments</span>
-                        <strong class="d-block fs-2 mt-2"><%= dashboard.reminderOverview.upcoming %></strong>
-                    </div>
-                </div>
+                <p class="mb-1">Completed: <%= dashboard.completed %> / <%= dashboard.total %></p>
+                <p class="mb-1">High Priority: <%= dashboard.highPriority %></p>
+                <p class="mb-0">Overdue: <%= dashboard.overdue %></p>
             </div>
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-lg-5">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h2 class="h5">Progress Overview</h2>
+    <div class="col-lg-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="h5">Upcoming Deadlines</h2>
 
-                    <div class="progress my-3" role="progressbar" aria-label="Assignment completion" aria-valuenow="<%= dashboard.progress %>" aria-valuemin="0" aria-valuemax="100">
-                        <div class="progress-bar" style="width: <%= dashboard.progress %>%;">
-                            <%= dashboard.progress %>%
-                        </div>
+                <% if (upcomingDeadlines.length) { %>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Assignment</th>
+                                    <th>Module</th>
+                                    <th>Due Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% upcomingDeadlines.forEach((assignment) => { %>
+                                    <tr>
+                                        <td>
+                                            <%= assignment.assignment_title %>
+                                            <% if (assignment.reminderCountdown) { %>
+                                                <small class="d-block <%= assignment.reminderCountdown.className %>">
+                                                    <%= assignment.reminderCountdown.text %>
+                                                </small>
+                                            <% } %>
+                                        </td>
+                                        <td><%= assignment.module_name %></td>
+                                        <td><%= assignment.due_date %></td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
                     </div>
-
-                    <p class="mb-1">Completed: <%= dashboard.completed %> / <%= dashboard.total %></p>
-                    <p class="mb-1">Pending: <%= dashboard.pending %></p>
-                    <p class="mb-1">High Priority: <%= dashboard.highPriority %></p>
-                    <p class="mb-0">Overdue: <%= dashboard.overdue %></p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-7">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h2 class="h5">Upcoming Deadlines</h2>
-
-                    <% if (upcomingDeadlines.length) { %>
-                        <div class="list-group list-group-flush">
-                            <% upcomingDeadlines.forEach((assignment) => { %>
-                                <div class="list-group-item px-0 d-flex justify-content-between gap-3">
-                                    <div>
-                                        <strong><%= assignment.assignment_title %></strong>
-                                        <p class="mb-0 text-muted"><%= assignment.module_name %></p>
-                                        <% if (assignment.reminderCountdown) { %>
-                                            <small class="d-block mt-1 <%= assignment.reminderCountdown.className %>"><%= assignment.reminderCountdown.text %></small>
-                                        <% } %>
-                                    </div>
-                                    <span><%= assignment.due_date %></span>
-                                </div>
-                            <% }) %>
-                        </div>
-                    <% } else { %>
-                        <p class="text-muted mb-0">No upcoming deadlines.</p>
-                    <% } %>
-                </div>
+                <% } else { %>
+                    <p class="text-muted mb-0">No upcoming deadlines yet.</p>
+                <% } %>
             </div>
         </div>
     </div>
-</section>
+</div>
 
 <%- include("partials/footer") %>
