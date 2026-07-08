@@ -57,6 +57,7 @@ function addDaysIso(days) {
 function buildAssignmentSummary(assignments) {
   const today = todayIso();
   const nextWeek = addDaysIso(7);
+  const reminderOverview = getReminderOverview(assignments);
 
   const total = assignments.length;
   const completed = assignments.filter((a) => a.status === "Completed").length;
@@ -88,6 +89,7 @@ function buildAssignmentSummary(assignments) {
       highPriority,
       overdue,
       progress,
+      reminderOverview,
     },
     upcomingDeadlines,
   };
@@ -218,6 +220,36 @@ function decorateAssignmentReminder(assignment) {
   };
 }
 
+function getReminderOverview(assignments) {
+  return assignments.reduce(
+    (overview, assignment) => {
+      if (!assignment.due_date || assignment.status === "Completed") {
+        return overview;
+      }
+
+      const reminderStatus = getReminderStatus(assignment.due_date);
+      if (!reminderStatus) {
+        return overview;
+      }
+
+      if (reminderStatus.label === "Overdue Warning") {
+        overview.overdue += 1;
+      } else if (reminderStatus.label === "Urgent Reminder") {
+        overview.urgent += 1;
+      } else if (reminderStatus.label === "Upcoming Reminder") {
+        overview.upcoming += 1;
+      }
+
+      return overview;
+    },
+    {
+      overdue: 0,
+      urgent: 0,
+      upcoming: 0,
+    }
+  );
+}
+
 async function sendEmail(subject, body, recipient) {
   const transporter = nodemailer.createTransport({
     host: process.env.MAIL_SERVER || "localhost",
@@ -301,7 +333,7 @@ app.get("/", async (req, res, next) => {
 });
 
 app.get("/dashboard", (req, res) => {
-  res.redirect("/");
+  res.redirect("/#progress-overview");
 });
 
 app.get("/assignments", async (req, res, next) => {
