@@ -4,6 +4,7 @@ const express = require("express");
 const path = require("path");
 const session = require("express-session");
 const nodemailer = require("nodemailer");
+const bcrypt = require("bcrypt");
 const { pool, initDb } = require("./db");
 const { buildCalendar } = require("./calendar");
 
@@ -41,6 +42,7 @@ app.use((req, res, next) => {
   const messages = req.session.flashMessages;
   req.session.flashMessages = {};
   res.locals.messages = messages;
+  res.locals.user = req.session.user || null;
   next();
 });
 
@@ -323,7 +325,14 @@ async function sendDueDateReminders(userId = null) {
   }
 }
 
-app.get("/", async (req, res, next) => {
+function requireLogin(req, res, next) {
+    if (!req.session.user) {
+        return res.redirect("/login");
+    }
+    next();
+}
+
+app.get("/", requireLogin, async (req, res, next) => {
   try {
     const [assignments] = await pool.query("SELECT * FROM assignments");
     res.render("index", buildAssignmentSummary(assignments));
@@ -493,16 +502,77 @@ app.get('/register', (req, res) => {
     res.render('register', { error: null });
 });
 
-app.post('/register', (req, res) => {
+app.post('/register', async (req, res, next) => {
     const { name, email, password } = req.body;
-    console.log('Registration attempt:', { name, email, password });
-    res.redirect('/login');
+
+    try {
+        const passwordHash = await bcrypt.hash(password, 10);
+
+        await pool.query(
+            "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+            [name, email, passwordHash]
+        );
+
+        res.redirect('/login');
+    } catch (error) {
+        if (error.code === "ER_DUP_ENTRY") {
+            return res.render("register", { error: "Email already registered." });
+        }
+
+        next(error);
+    }
 });
 
-app.post('/login', (req, res) => {
+app.post("/login", async (req, res, next) => {
     const { email, password } = req.body;
-    console.log('Login attempt:', { email, password });
-    res.redirect('/dashboard');
+
+    try {
+        const [rows] = await pool.query(
+            "SELECT * FROM users WHERE email = ?",
+            [email]
+        );
+
+        if (rows.length === 0) {
+            return res.render("login", {
+              error: "Invalid email or password."
+});
+        }
+
+        const user = rows[0];
+
+        const passwordMatch = await bcrypt.compare(
+            password,
+            user.password_hash
+        );
+
+        if (!passwordMatch) {
+            return res.render("login", {
+              error: "Invalid email or password."
+});
+        }
+
+        req.session.user = {
+            id: user.id,
+            name: user.name,
+            email: user.email
+        };
+
+        res.redirect("/dashboard");
+
+    } catch (err) {
+        next(err);
+    }
+});
+
+//logout
+app.get("/logout", (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.redirect("/");
+        }
+
+        res.redirect("/login");
+    });
 });
 
 app.use((err, req, res, next) => {

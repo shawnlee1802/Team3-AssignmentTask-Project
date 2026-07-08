@@ -15,7 +15,13 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
+
+                    <% if (user) { %>
+                        <li class="nav-item me-3 text-white">
+                            Welcome, <strong><%= user.name %></strong>
+                        </li>
+                    <% } %>
                     <li class="nav-item">
                         <a class="nav-link" href="/">Home</a>
                     </li>
@@ -25,6 +31,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/calendar">Calendar</a>
                     </li>
+                    <% if (user) { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">Logout</a>
+                        </li>
+                    <% } %>
                 </ul>
             </div>
         </div>
