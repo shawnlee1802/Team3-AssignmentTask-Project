@@ -345,10 +345,13 @@ app.get("/dashboard", (req, res) => {
   res.redirect("/#progress-overview");
 });
 
-app.get("/assignments", async (req, res, next) => {
+app.get("/assignments", requireLogin,async (req, res, next) => {  //protect assignment pages(requirelogin)
   try {
     await sendDueDateReminders();
-    const [assignments] = await pool.query("SELECT * FROM assignments ORDER BY due_date ASC");
+    const [assignments] = await pool.query(
+      "SELECT * FROM assignments WHERE user_id = ? ORDER BY due_date ASC",
+      [req.session.user.id]
+    );
     const assignmentRows = assignments.map(decorateAssignmentReminder);
     res.render("assignments", { assignments: assignmentRows });
   } catch (error) {
@@ -356,10 +359,11 @@ app.get("/assignments", async (req, res, next) => {
   }
 });
 
-app.get("/calendar", async (req, res, next) => {
+app.get("/calendar", requireLogin, async (req, res, next) => {
   try {
     const [assignments] = await pool.query(
-      "SELECT * FROM assignments WHERE due_date IS NOT NULL ORDER BY due_date ASC, priority ASC"
+      "SELECT * FROM assignments WHERE user_id = ? AND due_date IS NOT NULL ORDER BY due_date ASC, priority ASC",
+      [req.session.user.id]
     );
     const calendar = buildCalendar(assignments, req.query.month);
     const upcomingAssignments = assignments
@@ -375,11 +379,11 @@ app.get("/calendar", async (req, res, next) => {
   }
 });
 
-app.get("/assignments/add", (req, res) => {
+app.get("/assignments/add", requireLogin, (req, res) => {
   res.render("add_assignment", { form_data: {} });
 });
 
-app.post("/assignments/add", async (req, res, next) => {
+app.post("/assignments/add", requireLogin, async (req, res, next) => {
   const { errors, assignment } = validateAssignmentForm(req.body);
   if (errors.length) {
     res.locals.messages = { ...(res.locals.messages || {}), danger: errors };
@@ -400,7 +404,7 @@ app.post("/assignments/add", async (req, res, next) => {
         assignment.due_date,
         assignment.priority,
         assignment.status,
-        null,
+        req.session.user.id,
       ]
     );
     req.flash("success", "Assignment added successfully.");
@@ -410,11 +414,11 @@ app.post("/assignments/add", async (req, res, next) => {
   }
 });
 
-app.get("/assignments/edit/:id", async (req, res, next) => {
+app.get("/assignments/edit/:id", requireLogin, async (req, res, next) => {
   try {
-    const [assignments] = await pool.query("SELECT * FROM assignments WHERE id = ?", [
-      req.params.id,
-    ]);
+    const [assignments] = await pool.query("SELECT * FROM assignments WHERE id = ? AND user_id = ?", 
+      [req.params.id, req.session.user.id]
+    );
     const assignment = assignments[0];
     if (!assignment) {
       req.flash("warning", "Assignment not found.");
@@ -427,13 +431,13 @@ app.get("/assignments/edit/:id", async (req, res, next) => {
   }
 });
 
-app.post("/assignments/edit/:id", async (req, res, next) => {
+app.post("/assignments/edit/:id", requireLogin, async (req, res, next) => {
   const { errors, assignment } = validateAssignmentForm(req.body);
 
   try {
-    const [assignments] = await pool.query("SELECT * FROM assignments WHERE id = ?", [
-      req.params.id,
-    ]);
+    const [assignments] = await pool.query("SELECT * FROM assignments WHERE id = ? AND user_id = ?", 
+      [req.params.id, req.session.user.id]
+    );
     const existingAssignment = assignments[0];
     if (!existingAssignment) {
       req.flash("warning", "Assignment not found.");
@@ -477,11 +481,11 @@ app.post("/assignments/edit/:id", async (req, res, next) => {
   }
 });
 
-app.post("/assignments/delete/:id", async (req, res, next) => {
+app.post("/assignments/delete/:id", requireLogin, async (req, res, next) => {
   try {
-    const [result] = await pool.query("DELETE FROM assignments WHERE id = ?", [
-      req.params.id,
-    ]);
+    const [result] = await pool.query("DELETE FROM assignments WHERE id = ? AND user_id = ?", 
+      [req.params.id, req.session.user.id]
+    );
     req.flash(
       result.affectedRows ? "success" : "warning",
       result.affectedRows
