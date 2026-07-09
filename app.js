@@ -334,7 +334,8 @@ function requireLogin(req, res, next) {
 
 app.get("/", requireLogin, async (req, res, next) => {
   try {
-    const [assignments] = await pool.query("SELECT * FROM assignments");
+    const [assignments] = await pool.query("SELECT * FROM assignments WHERE user_id = ?", 
+      [req.session.user.id]);
     res.render("index", buildAssignmentSummary(assignments));
   } catch (error) {
     next(error);
