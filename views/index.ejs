@@ -1,11 +1,13 @@
 <%- include("partials/header") %>
 
+<%# Home hero: introduces the tracker and gives quick actions. %>
 <section class="home-hero">
     <div class="home-hero-copy">
         <span class="home-kicker">Student deadline workspace</span>
         <h1>Welcome to Assignment Tracker</h1>
         <p>Keep modules, deadlines, priority levels, and completion status in one clean place.</p>
 
+        <%# Links to add an assignment or jump down to the dashboard progress section. %>
         <div class="home-actions">
             <a href="/assignments/add" class="btn btn-primary">Add Assignment</a>
             <a href="#progress-overview" class="btn btn-outline-primary">Review Progress</a>
@@ -41,6 +43,7 @@
     </div>
 </section>
 
+<%# Quick links to the main pages: assignments, add assignment, and calendar. %>
 <section class="home-link-grid">
     <a href="/assignments" class="home-link-card">
         <strong>Manage Assignments</strong>
@@ -56,12 +59,14 @@
     </a>
 </section>
 
+<%# Dashboard section: summary numbers are calculated in app.js from MySQL assignment records. %>
 <section id="progress-overview" class="home-dashboard-section">
     <div class="dashboard-header bg-white p-4 rounded shadow-sm mb-4">
         <h1>Dashboard Overview</h1>
         <p class="mb-0 text-muted">Quick summary of your assignments and deadlines.</p>
     </div>
 
+    <%# Assignment summary cards: total, pending, due this week, and completed work. %>
     <div class="row g-3 mb-4" aria-label="Assignment summary">
         <div class="col-md-3">
             <div class="card shadow-sm h-100">
@@ -97,6 +102,7 @@
         </div>
     </div>
 
+    <%# Reminder counts: overdue, urgent, and upcoming assignments. %>
     <div class="mb-4">
         <h2 class="h5 mb-3">Reminder Overview</h2>
         <div class="row g-3" aria-label="Reminder summary">
@@ -127,12 +133,14 @@
         </div>
     </div>
 
+    <%# Progress bar and upcoming deadlines list. %>
     <div class="row g-4">
         <div class="col-lg-5">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
                     <h2 class="h5">Progress Overview</h2>
 
+                    <%# data-progress is used by the script below to set the progress bar width. %>
                     <div class="progress my-3" role="progressbar" aria-label="Assignment completion" aria-valuenow="<%= dashboard.progress %>" aria-valuemin="0" aria-valuemax="100">
                         <div class="progress-bar js-progress-bar" data-progress="<%= dashboard.progress %>">
                             <%= dashboard.progress %>%
@@ -152,6 +160,7 @@
                 <div class="card-body">
                     <h2 class="h5">Upcoming Deadlines</h2>
 
+                    <%# Shows the nearest incomplete assignments and their reminder countdown text. %>
                     <% if (upcomingDeadlines.length) { %>
                         <div class="list-group list-group-flush">
                             <% upcomingDeadlines.forEach((assignment) => { %>
@@ -176,6 +185,7 @@
     </div>
 </section>
 
+<%# Sets the progress bar width after the page loads. %>
 <script>
     document.querySelectorAll(".js-progress-bar").forEach((bar) => {
         const progress = Number(bar.dataset.progress || 0);

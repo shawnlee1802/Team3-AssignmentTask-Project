@@ -1,15 +1,19 @@
+// Loads local .env settings such as DB_HOST, DB_USER, and DB_PASSWORD.
 require("dotenv").config({ quiet: true });
 
 const mysql = require("mysql2/promise");
 
+// Database used by the app. It can be changed in .env with DB_NAME.
 const dbName = process.env.DB_NAME || "assignment_tracker";
 
+// Keeps CREATE DATABASE safe by allowing only letters, numbers, and underscores.
 function validateDatabaseName(name) {
   if (!/^[A-Za-z0-9_]+$/.test(name)) {
     throw new Error("DB_NAME can only contain letters, numbers, and underscores.");
   }
 }
 
+// Shared MySQL connection pool used by routes in app.js.
 const pool = mysql.createPool({
   host: process.env.DB_HOST || "localhost",
   port: Number(process.env.DB_PORT || 3306),
@@ -22,9 +26,11 @@ const pool = mysql.createPool({
   dateStrings: true,
 });
 
+// Creates the database and required tables when the app starts.
 async function initDb() {
   validateDatabaseName(dbName);
 
+  // Connect to MySQL server first so the database can be created if missing.
   const serverConnection = await mysql.createConnection({
     host: process.env.DB_HOST || "localhost",
     port: Number(process.env.DB_PORT || 3306),
@@ -35,6 +41,7 @@ async function initDb() {
   await serverConnection.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``);
   await serverConnection.end();
 
+  // Stores accounts created from the signup page.
   await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -45,6 +52,7 @@ async function initDb() {
     )
   `);
 
+  // Stores assignment details and links each record to a user through user_id.
   await pool.query(`
     CREATE TABLE IF NOT EXISTS assignments (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -59,6 +67,7 @@ async function initDb() {
     )
   `);
 
+  // Keeps older local databases working if they were created before user_id existed.
   const [columns] = await pool.query(
     `SELECT COLUMN_NAME
      FROM INFORMATION_SCHEMA.COLUMNS
