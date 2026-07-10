@@ -3,13 +3,11 @@ require("dotenv").config({ quiet: true });
 const express = require("express");
 const path = require("path");
 const session = require("express-session");
-const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const { pool, initDb } = require("./db");
 const { buildCalendar } = require("./calendar");
 
 const app = express();
-const sentReminderAssignmentIds = new Set();
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -252,79 +250,6 @@ function getReminderOverview(assignments) {
   );
 }
 
-async function sendEmail(subject, body, recipient) {
-  const transporter = nodemailer.createTransport({
-    host: process.env.MAIL_SERVER || "localhost",
-    port: Number(process.env.MAIL_PORT || 25),
-    secure: (process.env.MAIL_USE_SSL || "false").toLowerCase() === "true",
-    auth:
-      process.env.MAIL_USERNAME && process.env.MAIL_PASSWORD
-        ? {
-            user: process.env.MAIL_USERNAME,
-            pass: process.env.MAIL_PASSWORD,
-          }
-        : undefined,
-    requireTLS: (process.env.MAIL_USE_TLS || "false").toLowerCase() === "true",
-  });
-
-  await transporter.sendMail({
-    from: process.env.MAIL_DEFAULT_SENDER || "noreply@example.com",
-    to: recipient,
-    subject,
-    text: body,
-  });
-}
-
-async function getDueSoonAssignments(days = 3, userId = null) {
-  const [assignments] = await pool.query(
-    `
-      SELECT *
-      FROM assignments
-      WHERE due_date IS NOT NULL
-        AND due_date >= ?
-        AND due_date <= ?
-        ${userId ? "AND user_id = ?" : ""}
-      ORDER BY due_date ASC
-    `,
-    userId ? [todayIso(), addDaysIso(days), userId] : [todayIso(), addDaysIso(days)]
-  );
-  return assignments;
-}
-
-async function sendDueDateReminders(userId = null) {
-  const recipient = process.env.MAIL_RECIPIENT;
-  if (!recipient) {
-    return;
-  }
-
-  const assignments = await getDueSoonAssignments(3, userId);
-  for (const assignment of assignments) {
-    if (sentReminderAssignmentIds.has(assignment.id)) {
-      continue;
-    }
-
-    const subject = `Reminder: '${assignment.assignment_title}' due on ${assignment.due_date}`;
-    const body = [
-      "Assignment Reminder:",
-      "",
-      `Module: ${assignment.module_name}`,
-      `Title: ${assignment.assignment_title}`,
-      `Due Date: ${assignment.due_date}`,
-      `Priority: ${assignment.priority || "N/A"}`,
-      `Status: ${assignment.status || "N/A"}`,
-      "",
-      "This assignment is due within 3 days.",
-    ].join("\n");
-
-    try {
-      await sendEmail(subject, body, recipient);
-      sentReminderAssignmentIds.add(assignment.id);
-    } catch (error) {
-      // Keep reminder failures from blocking the assignment list.
-    }
-  }
-}
-
 function requireLogin(req, res, next) {
     if (!req.session.user) {
         return res.redirect("/login");
@@ -348,7 +273,6 @@ app.get("/dashboard", (req, res) => {
 
 app.get("/assignments", requireLogin,async (req, res, next) => {  //protect assignment pages(requirelogin)
   try {
-    await sendDueDateReminders();
     const [assignments] = await pool.query(
       "SELECT * FROM assignments WHERE user_id = ? ORDER BY due_date ASC",
       [req.session.user.id]
@@ -462,7 +386,7 @@ app.post("/assignments/edit/:id", requireLogin, async (req, res, next) => {
             due_date = ?,
             priority = ?,
             status = ?
-        WHERE id = ?
+        WHERE id = ? AND user_id = ?
       `,
       [
         assignment.module_name,
@@ -472,6 +396,7 @@ app.post("/assignments/edit/:id", requireLogin, async (req, res, next) => {
         assignment.priority,
         assignment.status,
         req.params.id,
+        req.session.user.id,
       ]
     );
 

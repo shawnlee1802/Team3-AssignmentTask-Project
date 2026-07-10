@@ -77,15 +77,6 @@
           DB_PASSWORD={{ db_password }}
           DB_NAME={{ db_name }}
 
-          MAIL_SERVER=localhost
-          MAIL_PORT=25
-          MAIL_USE_TLS=false
-          MAIL_USE_SSL=false
-          MAIL_USERNAME=
-          MAIL_PASSWORD=
-          MAIL_DEFAULT_SENDER=noreply@example.com
-          MAIL_RECIPIENT=
-
     - name: Install production dependencies
       ansible.builtin.command: npm ci --omit=dev
       args:

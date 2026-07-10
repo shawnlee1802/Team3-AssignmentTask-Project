@@ -31,7 +31,7 @@ Assignment Tracker is a Node.js web app that uses Express, EJS templates, and a 
    mysql -u root -p < database/schema.sql
    ```
 
-   The app also creates the database and `assignments` table automatically on startup if the MySQL user has permission.
+   The app also creates the database, `users` table, and `assignments` table automatically on startup if the MySQL user has permission.
 
 5. Start the app:
 
@@ -50,7 +50,6 @@ The app runs at `http://localhost:3000`.
 - `DB_USER`: MySQL username
 - `DB_PASSWORD`: MySQL password
 - `DB_NAME`: MySQL database name
-- `MAIL_*`: optional SMTP settings for due-date reminder emails
 
 ## Team Database Setup
 
@@ -60,8 +59,11 @@ If everyone is running MySQL on their own laptop, they can all use the same `DB_
 
 ## Main Routes
 
-- `/`: home page
+- `/`: dashboard home page after login
 - `/dashboard`: redirects to the home page dashboard section
+- `/login`: login page
+- `/register`: signup page
+- `/logout`: ends the login session
 - `/assignments`: assignment list
 - `/calendar`: monthly calendar and upcoming assignment timetable (`?month=YYYY-MM` supported)
 - `/assignments/add`: add assignment form
