@@ -134,7 +134,7 @@
                     <h2 class="h5">Progress Overview</h2>
 
                     <div class="progress my-3" role="progressbar" aria-label="Assignment completion" aria-valuenow="<%= dashboard.progress %>" aria-valuemin="0" aria-valuemax="100">
-                        <div class="progress-bar" <%- `style="width: ${dashboard.progress}%;"` %>>
+                        <div class="progress-bar js-progress-bar" data-progress="<%= dashboard.progress %>">
                             <%= dashboard.progress %>%
                         </div>
                     </div>
@@ -175,5 +175,13 @@
         </div>
     </div>
 </section>
+
+<script>
+    document.querySelectorAll(".js-progress-bar").forEach((bar) => {
+        const progress = Number(bar.dataset.progress || 0);
+        const safeProgress = Math.min(100, Math.max(0, progress));
+        bar.style.width = `${safeProgress}%`;
+    });
+</script>
 
 <%- include("partials/footer") %>
