@@ -17,6 +17,7 @@
     <div class="planner-preview" aria-label="Assignment preview">
         <div class="planner-preview-header">
             <strong>Today</strong>
+            <%# Show how many assignments are due within the current week. %>
             <span><%= dashboard.dueThisWeek %> due this week</span>
         </div>
         <div class="planner-row">
@@ -30,6 +31,7 @@
             <span class="planner-dot orange-dot"></span>
             <div>
                 <strong>Prioritise tasks</strong>
+                <%# Explain that high-priority tasks are the ones with the nearest due dates. %>
                 <p>Mark important submissions as high priority.</p>
             </div>
         </div>
@@ -88,6 +90,7 @@
             <div class="card shadow-sm h-100">
                 <div class="card-body">
                     <span class="text-muted fw-semibold">Due This Week</span>
+                    <%# This value comes from app.js after checking the assignment due dates. %>
                     <strong class="d-block fs-2"><%= dashboard.dueThisWeek %></strong>
                 </div>
             </div>
@@ -110,6 +113,7 @@
                 <div class="card shadow-sm h-100 border-0 border-start border-4 border-danger">
                     <div class="card-body">
                         <span class="text-danger-emphasis fw-semibold d-block">Overdue Assignments</span>
+                        <%# Overdue counts come from the reminder helper in app.js. %>
                         <strong class="d-block fs-2 mt-2"><%= dashboard.reminderOverview.overdue %></strong>
                     </div>
                 </div>
@@ -118,6 +122,7 @@
                 <div class="card shadow-sm h-100 border-0 border-start border-4 border-warning">
                     <div class="card-body">
                         <span class="text-warning-emphasis fw-semibold d-block">Urgent Assignments</span>
+                        <%# Urgent means the due date is very close, so the assignment needs attention soon. %>
                         <strong class="d-block fs-2 mt-2"><%= dashboard.reminderOverview.urgent %></strong>
                     </div>
                 </div>
@@ -126,6 +131,7 @@
                 <div class="card shadow-sm h-100 border-0 border-start border-4 border-info">
                     <div class="card-body">
                         <span class="text-info-emphasis fw-semibold d-block">Upcoming Assignments</span>
+                        <%# Upcoming means the deadline is close but not yet urgent. %>
                         <strong class="d-block fs-2 mt-2"><%= dashboard.reminderOverview.upcoming %></strong>
                     </div>
                 </div>
@@ -149,6 +155,7 @@
 
                     <p class="mb-1">Completed: <%= dashboard.completed %> / <%= dashboard.total %></p>
                     <p class="mb-1">Pending: <%= dashboard.pending %></p>
+                    <%# High priority is calculated from the due date, not entered manually. %>
                     <p class="mb-1">High Priority: <%= dashboard.highPriority %></p>
                     <p class="mb-0">Overdue: <%= dashboard.overdue %></p>
                 </div>
@@ -163,15 +170,19 @@
                     <%# Shows the nearest incomplete assignments and their reminder countdown text. %>
                     <% if (upcomingDeadlines.length) { %>
                         <div class="list-group list-group-flush">
+                            <%# Loop through the nearest deadlines so the student can see what is coming first. %>
                             <% upcomingDeadlines.forEach((assignment) => { %>
                                 <div class="list-group-item px-0 d-flex justify-content-between gap-3">
                                     <div>
+                                        <%# Show the assignment title and module name for context. %>
                                         <strong><%= assignment.assignment_title %></strong>
                                         <p class="mb-0 text-muted"><%= assignment.module_name %></p>
+                                        <%# Show the countdown text produced by the reminder helper. %>
                                         <% if (assignment.reminderCountdown) { %>
                                             <small class="d-block mt-1 <%= assignment.reminderCountdown.className %>"><%= assignment.reminderCountdown.text %></small>
                                         <% } %>
                                     </div>
+                                    <%# Show the actual due date beside the countdown message. %>
                                     <span><%= assignment.due_date %></span>
                                 </div>
                             <% }) %>

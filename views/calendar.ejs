@@ -28,26 +28,36 @@
         </div>
 
         <div class="calendar-month-grid">
+            <%# Loop through each week in the calendar grid so days can be grouped by row. %>
             <% weeks.forEach((week) => { %>
                 <div class="calendar-grid calendar-week">
+                    <%# Loop through each day in the current week to place assignments on the correct date. %>
                     <% week.forEach((day) => { %>
+                        <%# Empty slots are used when the month does not start on the first day of the week. %>
                         <% if (!day) { %>
                             <div class="calendar-day calendar-day-empty" aria-hidden="true"></div>
                         <% } else { %>
                             <div class="calendar-day <%= day.isToday ? 'calendar-today' : '' %>">
                                 <div class="calendar-date-row">
+                                    <%# Show the calendar date number for this cell. %>
                                     <time datetime="<%= day.date %>" class="calendar-date"><%= day.day %></time>
+                                    <%# Show how many assignments fall on this date. %>
                                     <% if (day.assignments.length) { %>
                                         <span class="calendar-count"><%= day.assignments.length %></span>
                                     <% } %>
                                 </div>
                                 <div class="calendar-events">
+                                    <%# Loop through each assignment so every deadline appears in the correct day cell. %>
                                     <% day.assignments.forEach((assignment) => { %>
+                                        <%# Turn the priority text into a CSS class name for colour styling. %>
                                         <% const priorityClass = (assignment.priority || 'Low').toLowerCase(); %>
+                                        <%# Render the assignment as a clickable event card that opens the edit page. %>
                                         <a class="calendar-event priority-<%= priorityClass %> <%= assignment.status === 'Completed' ? 'event-completed' : '' %>"
                                            href="/assignments/edit/<%= assignment.id %>"
                                            title="<%= assignment.module_name %>: <%= assignment.assignment_title %> (<%= assignment.status %>)">
+                                            <%# Show the assignment title directly on the calendar event. %>
                                             <span><%= assignment.assignment_title %></span>
+                                            <%# Show the module name as the smaller supporting line. %>
                                             <small><%= assignment.module_name %></small>
                                         </a>
                                     <% }) %>
@@ -63,19 +73,25 @@
     <aside class="calendar-sidebar">
         <div class="calendar-side-card">
             <h2>Upcoming</h2>
+            <%# Show the next few incomplete assignments beside the calendar. %>
             <% if (upcomingAssignments.length) { %>
+                <%# Loop through the upcoming assignments so each one gets its own link. %>
                 <% upcomingAssignments.forEach((assignment) => { %>
+                    <%# Each upcoming item links back to the edit page for quick access. %>
                     <a class="upcoming-item" href="/assignments/edit/<%= assignment.id %>">
+                        <%# Show the due date in a compact day/month format. %>
                         <time datetime="<%= assignment.due_date %>">
                             <strong><%= new Date(assignment.due_date + 'T00:00:00').toLocaleDateString('en-SG', { day: '2-digit' }) %></strong>
                             <span><%= new Date(assignment.due_date + 'T00:00:00').toLocaleDateString('en-SG', { month: 'short' }) %></span>
                         </time>
                         <span>
+                            <%# Show the assignment title and module name together for quick scanning. %>
                             <strong><%= assignment.assignment_title %></strong>
                             <small><%= assignment.module_name %> &middot; <%= assignment.priority %></small>
                         </span>
                     </a>
                 <% }) %>
+            <%# Show a friendly message when the student has no upcoming deadlines. %>
             <% } else { %>
                 <p class="text-muted mb-0">No upcoming deadlines. Nicely done!</p>
             <% } %>
@@ -83,6 +99,7 @@
 
         <div class="calendar-side-card">
             <h2>Priority key</h2>
+            <%# The legend explains the colours used for the priority classes in the calendar. %>
             <div class="calendar-legend"><span class="legend-dot priority-high"></span> High</div>
             <div class="calendar-legend"><span class="legend-dot priority-medium"></span> Medium</div>
             <div class="calendar-legend"><span class="legend-dot priority-low"></span> Low</div>

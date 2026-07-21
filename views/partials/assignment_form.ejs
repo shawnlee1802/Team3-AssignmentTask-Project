@@ -1,4 +1,3 @@
-<% const selectedPriority = assignment.priority || "Low"; %>
 <% const selectedStatus = assignment.status || "Not Started"; %>
 
 <div class="mb-3">
@@ -19,12 +18,27 @@
         <input type="date" class="form-control" id="due_date" name="due_date" value="<%= assignment.due_date || "" %>" required>
     </div>
     <div class="col-md-3">
+        <%# ======================================================
+        Deadline Reminder Feature (Shawn)
+        Automatic Priority Calculation
+
+        Lecturer Requirement:
+        Automatically update assignment priority based on assignment due date.
+
+        High Priority    : Due within 5 days
+        Medium Priority  : Due within 1 week
+        Low Priority     : More than 1 week
+        ====================================================== %>
+        <%# This field shows the computed priority instead of letting the user edit it manually. %>
+        <%# This display is read-only because priority is calculated automatically from the due date. %>
+        <%# Store the value that will be displayed in the read-only priority box. %>
+        <% const priorityDisplay = assignment.due_date ? (assignment.priority || "Low") : "Auto-calculated after due date is set"; %>
+        <%# Label the priority display so users know what the calculated value means. %>
         <label for="priority" class="form-label">Priority</label>
-        <select class="form-select" id="priority" name="priority">
-            <option value="Low" <%= selectedPriority === "Low" ? "selected" : "" %>>Low</option>
-            <option value="Medium" <%= selectedPriority === "Medium" ? "selected" : "" %>>Medium</option>
-            <option value="High" <%= selectedPriority === "High" ? "selected" : "" %>>High</option>
-        </select>
+        <%# Show the calculated priority in a read-only input so the form stays consistent. %>
+        <input type="text" class="form-control" id="priority" value="<%= priorityDisplay %>" readonly>
+        <%# Tell the user that the server decides the priority from the due date. %>
+        <div class="form-text">Automatically calculated from the due date.</div>
     </div>
     <div class="col-md-3">
         <label for="status" class="form-label">Status</label>

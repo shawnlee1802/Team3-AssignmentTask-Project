@@ -22,31 +22,44 @@
             </tr>
         </thead>
         <tbody>
+            <%# Show assignment rows only when the user has saved assignments. %>
             <% if (assignments.length) { %>
+                <%# Loop through each assignment so the table can show one row per record. %>
                 <% assignments.forEach((assignment) => { %>
+                    <%# Choose a row color based on the reminder label so urgent items stand out. %>
                     <% const rowClass = assignment.reminderStatus
                         ? assignment.reminderStatus.label === "Overdue Warning"
                             ? "table-danger"
                             : assignment.reminderStatus.label === "Urgent Reminder"
-                                ? "table-warning"
+                            ? "table-warning"
                                 : "table-info"
                         : ""; %>
                     <tr class="<%= rowClass %>">
+                        <%# Show the assignment title that was saved in the database. %>
                         <td><%= assignment.assignment_title %></td>
+                        <%# Show the module name so the student knows which class this task belongs to. %>
                         <td><%= assignment.module_name %></td>
+                        <%# Show the due date that is used by the reminder and priority helpers. %>
                         <td><%= assignment.due_date || "N/A" %></td>
+                        <%# Show the priority that was calculated from the due date. %>
                         <td><%= assignment.priority || "N/A" %></td>
+                        <%# Show the saved completion status. %>
                         <td><%= assignment.status || "N/A" %></td>
+                        <%# Show reminder badges and countdown text that come from app.js helpers. %>
                         <td>
+                            <%# If a reminder exists, display its badge and colour. %>
                             <% if (assignment.reminderStatus) { %>
                                 <span class="<%= assignment.reminderStatus.className %>"><%= assignment.reminderStatus.label %></span>
+                            <%# If no reminder is needed, show a calm status message. %>
                             <% } else { %>
                                 <span class="text-muted">On Track</span>
                             <% } %>
+                            <%# Show the remaining time text when the countdown helper returns one. %>
                             <% if (assignment.reminderCountdown) { %>
                                 <small class="d-block mt-1 <%= assignment.reminderCountdown.className %>"><%= assignment.reminderCountdown.text %></small>
                             <% } %>
                         </td>
+                        <%# Provide edit and delete actions for the selected assignment. %>
                         <td class="text-end">
                             <a href="/assignments/edit/<%= assignment.id %>" class="btn btn-sm btn-outline-secondary me-2">Edit</a>
                             <form action="/assignments/delete/<%= assignment.id %>" method="post" class="d-inline">
@@ -55,6 +68,7 @@
                         </td>
                     </tr>
                 <% }) %>
+            <%# If there are no records, show an empty state message instead of a blank table. %>
             <% } else { %>
                 <tr>
                     <td colspan="7" class="text-center py-4">No assignments found. Use the button above to add a new assignment.</td>
