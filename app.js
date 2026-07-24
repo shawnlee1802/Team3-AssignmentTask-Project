@@ -44,9 +44,16 @@ app.use((req, res, next) => {
   next();
 });
 
+function formatLocalDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function todayIso() {
   // Get today's date in YYYY-MM-DD format so dashboard comparisons stay simple.
-  return new Date().toISOString().slice(0, 10);
+  return formatLocalDate(new Date());
 }
 
 function addDaysIso(days) {
@@ -55,7 +62,11 @@ function addDaysIso(days) {
   // Move the date forward by the number of days passed into the function.
   date.setDate(date.getDate() + days);
   // Return the future date in YYYY-MM-DD format for view and summary checks.
-  return date.toISOString().slice(0, 10);
+  return formatLocalDate(date);
+}
+
+function isCompletedStatus(status) {
+  return String(status || "").trim().toLowerCase() === "completed";
 }
 
 // ======================================================
@@ -100,15 +111,25 @@ function getDaysUntilDue(dueDate) {
 // Determines the stored priority label from the assignment due date.
 // It is used whenever an assignment is created, edited, displayed,
 // or synced from the database so priority always follows the lecturer rule.
-// Input: assignment due date.
-// Output: "High", "Medium", or "Low".
-function getAssignmentPriority(dueDate) {
+// Input: assignment due date and current status.
+// Output: "Completed", "Overdue", "High", "Medium", or "Low".
+function getAssignmentPriority(dueDate, status) {
+  // Completed assignments always keep the Completed priority regardless of the due date.
+  if (isCompletedStatus(status)) {
+    return "Completed";
+  }
+
   // Reuse the shared day calculation so priority and reminders stay aligned.
   const daysUntilDue = getDaysUntilDue(dueDate);
 
   // Missing or invalid dates default to Low because no deadline urgency can be measured.
   if (daysUntilDue === null) {
     return "Low";
+  }
+
+  // If the deadline has already passed, the task is overdue even when it is not completed.
+  if (daysUntilDue < 0) {
+    return "Overdue";
   }
 
   // Five days or fewer means the assignment should be treated as High priority.
@@ -135,8 +156,11 @@ async function syncAssignmentPriorities(assignments) {
 
   // Check every assignment loaded from the database.
   assignments.forEach((assignment) => {
-    // Calculate the correct priority from the due date.
-    const calculatedPriority = getAssignmentPriority(assignment.due_date);
+    // Calculate the correct priority from the due date and status.
+    const calculatedPriority = getAssignmentPriority(
+      assignment.due_date,
+      assignment.status
+    );
     // Read the current stored priority, falling back to an empty string if it is missing.
     const currentPriority = assignment.priority ?? "";
     // Update the in-memory object so the UI sees the fresh priority immediately.
@@ -180,16 +204,17 @@ function buildAssignmentSummary(assignments) {
   // Count every assignment in the current list.
   const total = assignments.length;
   // Count assignments that are already marked as completed.
-  const completed = assignments.filter((a) => a.status === "Completed").length;
+  const completed = assignments.filter((a) => isCompletedStatus(a.status)).length;
   // Count assignments that still need work.
   const pending = total - completed;
   // Count assignments whose due date makes them High priority.
   const highPriority = assignments.filter(
-    (assignment) => getAssignmentPriority(assignment.due_date) === "High"
+    (assignment) =>
+      getAssignmentPriority(assignment.due_date, assignment.status) === "High"
   ).length;
   // Count assignments that are overdue and not completed yet.
   const overdue = assignments.filter(
-    (a) => a.due_date && a.due_date < today && a.status !== "Completed"
+    (a) => a.due_date && a.due_date < today && !isCompletedStatus(a.status)
   ).length;
   // Count assignments due between today and one week from now.
   const dueThisWeek = assignments.filter(
@@ -197,12 +222,12 @@ function buildAssignmentSummary(assignments) {
       a.due_date &&
       a.due_date >= today &&
       a.due_date <= nextWeek &&
-      a.status !== "Completed"
+      !isCompletedStatus(a.status)
   ).length;
   // Keep only upcoming incomplete assignments, sort them by due date,
   // take the first five, and add reminder information for the UI.
   const upcomingDeadlines = assignments
-    .filter((a) => a.due_date && a.status !== "Completed")
+    .filter((a) => a.due_date && !isCompletedStatus(a.status))
     .sort((a, b) => a.due_date.localeCompare(b.due_date))
     .slice(0, 5)
     .map(decorateAssignmentReminder);
@@ -243,7 +268,7 @@ function validateAssignmentForm(body) {
     // Store the due date exactly as entered in the form.
     due_date: (body.due_date || "").trim(),
     // Store the status, defaulting to Not Started when no value is selected.
-    status: body.status || "Not Started",
+    status: (body.status || "Not Started").trim(),
   };
 
   // Require a module name because every assignment must belong to a module.
@@ -262,8 +287,11 @@ function validateAssignmentForm(body) {
     errors.push("Due Date must be a valid date.");
   }
 
-  // Calculate the priority after validation so the saved record matches the due date.
-  assignment.priority = getAssignmentPriority(assignment.due_date);
+  // Calculate the priority after validation so the saved record matches the due date and status.
+  assignment.priority = getAssignmentPriority(
+    assignment.due_date,
+    assignment.status
+  );
 
   // Return both the errors and the cleaned assignment object to the route handler.
   return { errors, assignment };
@@ -274,7 +302,12 @@ function validateAssignmentForm(body) {
 // logic used by automatic priority calculation.
 // Input: assignment due date.
 // Output: reminder descriptor object or null when no reminder is needed.
-function getReminderStatus(dueDate) {
+function getReminderStatus(dueDate, status) {
+  // Completed assignments should not display reminders because the task is already done.
+  if (isCompletedStatus(status)) {
+    return null;
+  }
+
   // Reuse the shared day count so reminder timing matches the priority rule.
   const daysUntilDue = getDaysUntilDue(dueDate);
   // If the date is missing or invalid, there is no reminder to show.
@@ -314,7 +347,12 @@ function getReminderStatus(dueDate) {
 // It reuses the shared day calculation so reminder text matches priority rules.
 // Input: assignment due date.
 // Output: countdown descriptor object or null when no countdown is needed.
-function getReminderCountdown(dueDate) {
+function getReminderCountdown(dueDate, status) {
+  // Completed assignments should not show a countdown because the task is already done.
+  if (isCompletedStatus(status)) {
+    return null;
+  }
+
   // Reuse the same day count used by reminders and priority logic.
   const daysUntilDue = getDaysUntilDue(dueDate);
   // No valid due date means there is no countdown to display.
@@ -370,8 +408,8 @@ function decorateAssignmentReminder(assignment) {
   // Return a copy of the assignment with extra UI-only reminder fields attached.
   return {
     ...assignment,
-    reminderStatus: getReminderStatus(assignment.due_date),
-    reminderCountdown: getReminderCountdown(assignment.due_date),
+    reminderStatus: getReminderStatus(assignment.due_date, assignment.status),
+    reminderCountdown: getReminderCountdown(assignment.due_date, assignment.status),
   };
 }
 
@@ -385,12 +423,12 @@ function getReminderOverview(assignments) {
   return assignments.reduce(
     (overview, assignment) => {
       // Skip records with no due date or records already completed.
-      if (!assignment.due_date || assignment.status === "Completed") {
+      if (!assignment.due_date || isCompletedStatus(assignment.status)) {
         return overview;
       }
 
       // Check what reminder category this assignment belongs to.
-      const reminderStatus = getReminderStatus(assignment.due_date);
+      const reminderStatus = getReminderStatus(assignment.due_date, assignment.status);
       // If no reminder is needed, leave the totals unchanged.
       if (!reminderStatus) {
         return overview;
@@ -482,7 +520,7 @@ app.get("/calendar", requireLogin, async (req, res, next) => {
     const upcomingAssignments = assignments
       .filter(
         (assignment) =>
-          assignment.due_date >= calendar.today && assignment.status !== "Completed"
+          assignment.due_date >= calendar.today && !isCompletedStatus(assignment.status)
       )
       .slice(0, 6);
 
@@ -741,3 +779,7 @@ if (require.main === module) {
 }
 
 module.exports = app;
+module.exports.getAssignmentPriority = getAssignmentPriority;
+module.exports.getReminderStatus = getReminderStatus;
+module.exports.getReminderCountdown = getReminderCountdown;
+module.exports.isCompletedStatus = isCompletedStatus;

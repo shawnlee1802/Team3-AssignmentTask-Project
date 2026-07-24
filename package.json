@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "node --check app.js && node --check db.js && node --check calendar.js"
+    "test": "node --check app.js && node --check db.js && node --check calendar.js && node tests/priority.test.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

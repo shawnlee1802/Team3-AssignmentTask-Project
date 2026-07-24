@@ -49,10 +49,11 @@
                                 <div class="calendar-events">
                                     <%# Loop through each assignment so every deadline appears in the correct day cell. %>
                                     <% day.assignments.forEach((assignment) => { %>
-                                        <%# Turn the priority text into a CSS class name for colour styling. %>
-                                        <% const priorityClass = (assignment.priority || 'Low').toLowerCase(); %>
+                                        <%# Completed assignments should not use reminder priority colour classes. %>
+                                        <% const isCompleted = String(assignment.status || "").trim().toLowerCase() === "completed"; %>
+                                        <% const priorityClass = isCompleted ? "" : (assignment.priority || 'Low').toLowerCase(); %>
                                         <%# Render the assignment as a clickable event card that opens the edit page. %>
-                                        <a class="calendar-event priority-<%= priorityClass %> <%= assignment.status === 'Completed' ? 'event-completed' : '' %>"
+                                        <a class="calendar-event <%= priorityClass ? `priority-${priorityClass}` : '' %> <%= isCompleted ? 'event-completed' : '' %>"
                                            href="/assignments/edit/<%= assignment.id %>"
                                            title="<%= assignment.module_name %>: <%= assignment.assignment_title %> (<%= assignment.status %>)">
                                             <%# Show the assignment title directly on the calendar event. %>

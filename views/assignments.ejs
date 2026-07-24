@@ -26,14 +26,18 @@
             <% if (assignments.length) { %>
                 <%# Loop through each assignment so the table can show one row per record. %>
                 <% assignments.forEach((assignment) => { %>
+                    <%# Completed assignments should never get reminder row highlighting. %>
+                    <% const isCompleted = String(assignment.status || "").trim().toLowerCase() === "completed"; %>
                     <%# Choose a row color based on the reminder label so urgent items stand out. %>
-                    <% const rowClass = assignment.reminderStatus
-                        ? assignment.reminderStatus.label === "Overdue Warning"
-                            ? "table-danger"
-                            : assignment.reminderStatus.label === "Urgent Reminder"
-                            ? "table-warning"
-                                : "table-info"
-                        : ""; %>
+                    <% const rowClass = isCompleted
+                        ? ""
+                        : assignment.reminderStatus
+                            ? assignment.reminderStatus.label === "Overdue Warning"
+                                ? "table-danger"
+                                : assignment.reminderStatus.label === "Urgent Reminder"
+                                ? "table-warning"
+                                    : "table-info"
+                            : ""; %>
                     <tr class="<%= rowClass %>">
                         <%# Show the assignment title that was saved in the database. %>
                         <td><%= assignment.assignment_title %></td>
@@ -47,15 +51,18 @@
                         <td><%= assignment.status || "N/A" %></td>
                         <%# Show reminder badges and countdown text that come from app.js helpers. %>
                         <td>
+                            <%# Completed assignments should not show reminder badges or countdown text. %>
+                            <% if (isCompleted) { %>
+                                <span class="text-muted">None</span>
                             <%# If a reminder exists, display its badge and colour. %>
-                            <% if (assignment.reminderStatus) { %>
+                            <% } else if (assignment.reminderStatus) { %>
                                 <span class="<%= assignment.reminderStatus.className %>"><%= assignment.reminderStatus.label %></span>
                             <%# If no reminder is needed, show a calm status message. %>
                             <% } else { %>
                                 <span class="text-muted">On Track</span>
                             <% } %>
                             <%# Show the remaining time text when the countdown helper returns one. %>
-                            <% if (assignment.reminderCountdown) { %>
+                            <% if (!isCompleted && assignment.reminderCountdown) { %>
                                 <small class="d-block mt-1 <%= assignment.reminderCountdown.className %>"><%= assignment.reminderCountdown.text %></small>
                             <% } %>
                         </td>

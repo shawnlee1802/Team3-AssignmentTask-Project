@@ -32,7 +32,7 @@
         <%# This field shows the computed priority instead of letting the user edit it manually. %>
         <%# This display is read-only because priority is calculated automatically from the due date. %>
         <%# Store the value that will be displayed in the read-only priority box. %>
-        <% const priorityDisplay = assignment.due_date ? (assignment.priority || "Low") : "Auto-calculated after due date is set"; %>
+        <% const priorityDisplay = assignment.priority || (assignment.due_date ? "Low" : "Auto-calculated after due date is set"); %>
         <%# Label the priority display so users know what the calculated value means. %>
         <label for="priority" class="form-label">Priority</label>
         <%# Show the calculated priority in a read-only input so the form stays consistent. %>
