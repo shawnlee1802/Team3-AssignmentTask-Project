@@ -1,0 +1,38 @@
+services:
+  database:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-assignment_tracker}
+      MYSQL_USER: assignment_app
+      MYSQL_PASSWORD: ${MYSQL_APP_PASSWORD:-change-this-app-password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-change-this-root-password}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  app:
+    build: .
+    image: assignment-tracker-node:latest
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      PORT: 3000
+      SESSION_SECRET: ${SESSION_SECRET:-change-this-session-secret}
+      DB_HOST: database
+      DB_PORT: 3306
+      DB_USER: assignment_app
+      DB_PASSWORD: ${MYSQL_APP_PASSWORD:-change-this-app-password}
+      DB_NAME: ${DB_NAME:-assignment_tracker}
+    depends_on:
+      database:
+        condition: service_healthy
+
+volumes:
+  mysql_data:

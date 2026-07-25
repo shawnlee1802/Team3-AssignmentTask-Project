@@ -463,6 +463,16 @@ function requireLogin(req, res, next) {
     next();
 }
 
+// Docker uses this route to confirm that the app can reach MySQL.
+app.get("/health", async (req, res) => {
+  try {
+    await pool.query("SELECT 1");
+    res.status(200).json({ status: "ok", database: "connected" });
+  } catch (error) {
+    res.status(503).json({ status: "error", database: "unavailable" });
+  }
+});
+
 app.get("/", requireLogin, async (req, res, next) => {
   // Loads the dashboard data, syncs stored priority values, and then
   // passes the assignments into the summary builder for the home page.

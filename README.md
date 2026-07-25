@@ -6,6 +6,7 @@ Assignment Tracker is a Node.js web app that uses Express, EJS templates, and a 
 
 - Node.js 18 or newer
 - MySQL 8 or newer
+- Docker Desktop, when running the container version
 
 ## Setup
 
@@ -44,12 +45,14 @@ The app runs at `http://localhost:3000`.
 ## Environment Variables
 
 - `PORT`: Express server port
-- `SESSION_SECRET`: secret used for flash-message sessions
+- `SESSION_SECRET`: secret used to protect login sessions
 - `DB_HOST`: MySQL host
 - `DB_PORT`: MySQL port
 - `DB_USER`: MySQL username
 - `DB_PASSWORD`: MySQL password
 - `DB_NAME`: MySQL database name
+- `MYSQL_ROOT_PASSWORD`: root password for the Docker MySQL container
+- `MYSQL_APP_PASSWORD`: application-user password for the Docker MySQL container
 
 ## Team Database Setup
 
@@ -71,9 +74,40 @@ If everyone is running MySQL on their own laptop, they can all use the same `DB_
 
 ## Docker
 
-Build and run the application container:
+Docker Compose starts both the Node.js application and a MySQL 8.4 database:
 
 ```bash
-docker build -t assignment-tracker-node .
-docker run -p 3000:3000 --env-file .env assignment-tracker-node
+docker compose up --build -d
+docker compose ps
 ```
+
+Open `http://localhost:3000`. To prove the app is connected to MySQL, open
+`http://localhost:3000/health`. The expected response is:
+
+```json
+{"status":"ok","database":"connected"}
+```
+
+Useful checks:
+
+```bash
+docker compose logs app
+docker compose logs database
+docker compose down
+```
+
+The named `mysql_data` volume keeps the database when the containers stop.
+
+## Jenkins CI/CD
+
+The `Jenkinsfile` runs these stages:
+
+1. Install exact package versions with `npm ci`.
+2. Run syntax checks and the priority/reminder tests with `npm test`.
+3. Validate `docker-compose.yml`.
+4. Build a versioned Docker image.
+
+Configure a Jenkins NodeJS tool named `NodeJS`, and install Docker on the
+Jenkins agent. The pipeline supports Windows and Linux Jenkins agents and does
+not deploy the application. Deployment can be performed manually after the
+pipeline successfully builds the Docker image.
