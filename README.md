@@ -51,6 +51,7 @@ The app runs at `http://localhost:3000`.
 - `DB_USER`: MySQL username
 - `DB_PASSWORD`: MySQL password
 - `DB_NAME`: MySQL database name
+- `DB_CREATE_DATABASE`: set to `false` when the database is created externally; defaults to creating it
 - `MYSQL_ROOT_PASSWORD`: root password for the Docker MySQL container
 - `MYSQL_APP_PASSWORD`: application-user password for the Docker MySQL container
 
@@ -75,6 +76,11 @@ If everyone is running MySQL on their own laptop, they can all use the same `DB_
 ## Docker
 
 Docker Compose starts both the Node.js application and a MySQL 8.4 database:
+
+Before starting the containers, create `.env` from `.env.example` and replace
+all secret placeholders. Docker Compose requires `SESSION_SECRET`,
+`MYSQL_ROOT_PASSWORD`, and `MYSQL_APP_PASSWORD`; it does not provide default
+passwords.
 
 ```bash
 docker compose up --build -d
@@ -102,12 +108,32 @@ The named `mysql_data` volume keeps the database when the containers stop.
 
 The `Jenkinsfile` runs these stages:
 
-1. Install exact package versions with `npm ci`.
-2. Run syntax checks and the priority/reminder tests with `npm test`.
-3. Validate `docker-compose.yml`.
-4. Build a versioned Docker image.
+1. Check out the repository.
+2. Install exact package versions with `npm ci`.
+3. Run syntax checks and the priority/reminder tests with `npm test`.
+4. Validate `docker-compose.yml`.
+5. Build versioned and `latest` Docker images.
+6. Deploy the app and MySQL with `docker compose up -d --no-build`.
+7. Wait for the app container to become healthy and verify `/health`.
 
 Configure a Jenkins NodeJS tool named `NodeJS`, and install Docker on the
-Jenkins agent. The pipeline supports Windows and Linux Jenkins agents and does
-not deploy the application. Deployment can be performed manually after the
-pipeline successfully builds the Docker image.
+Jenkins agent. The Jenkins service account must have permission to use Docker.
+The pipeline supports Windows and Linux agents.
+
+Add these three Jenkins credentials as **Secret text** values:
+
+| Credential ID | Purpose |
+| --- | --- |
+| `assignment-tracker-session-secret` | Protects login sessions |
+| `assignment-tracker-mysql-root-password` | Protects the container's MySQL root account |
+| `assignment-tracker-mysql-app-password` | Password used by the app's MySQL account |
+
+The pipeline exposes these credentials only as masked environment variables.
+Do not place the real values in `.env.example`, the `Jenkinsfile`, or GitHub.
+For local Docker commands outside Jenkins, put your own values in the ignored
+`.env` file instead.
+
+If local deployment or the health check fails, Jenkins displays
+`docker compose ps` and the app/database logs before removing the broken
+containers. After a successful pipeline, the containers remain running so the
+application can be demonstrated at `http://localhost:3000`.

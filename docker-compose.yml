@@ -5,8 +5,8 @@ services:
     environment:
       MYSQL_DATABASE: ${DB_NAME:-assignment_tracker}
       MYSQL_USER: assignment_app
-      MYSQL_PASSWORD: ${MYSQL_APP_PASSWORD:-change-this-app-password}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-change-this-root-password}
+      MYSQL_PASSWORD: ${MYSQL_APP_PASSWORD:?MYSQL_APP_PASSWORD must be set}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD must be set}
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -24,12 +24,13 @@ services:
       - "${PORT:-3000}:3000"
     environment:
       PORT: 3000
-      SESSION_SECRET: ${SESSION_SECRET:-change-this-session-secret}
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET must be set}
       DB_HOST: database
       DB_PORT: 3306
       DB_USER: assignment_app
-      DB_PASSWORD: ${MYSQL_APP_PASSWORD:-change-this-app-password}
+      DB_PASSWORD: ${MYSQL_APP_PASSWORD:?MYSQL_APP_PASSWORD must be set}
       DB_NAME: ${DB_NAME:-assignment_tracker}
+      DB_CREATE_DATABASE: "false"
     depends_on:
       database:
         condition: service_healthy
