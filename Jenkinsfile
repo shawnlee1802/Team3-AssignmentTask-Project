@@ -53,13 +53,15 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'docker compose config --quiet'
+                        sh 'docker compose config > /dev/null'
                     } else {
-                        bat 'docker compose config --quiet'
+                        bat '@docker compose config > NUL'
                     }
                 }
             }
         }
+    
+
 
         stage('Build Docker Image') {
             steps {
