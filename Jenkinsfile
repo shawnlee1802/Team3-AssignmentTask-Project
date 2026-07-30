@@ -145,7 +145,7 @@ pipeline {
                                 if "!HEALTH_STATUS!"=="healthy" exit /b 0
                                 if "!HEALTH_STATUS!"=="unhealthy" exit /b 1
 
-                                timeout /t 5 /nobreak >nul
+                                powershell -NoProfile -Command "Start-Sleep -Seconds 5"
                             )
 
                             echo Application did not become healthy before the timeout.
