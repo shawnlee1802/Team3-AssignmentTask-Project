@@ -185,6 +185,35 @@
     margin-bottom: 20px;
 }
 
+.calendar-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+    padding: 14px;
+    margin-bottom: 20px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.calendar-filter-field {
+    flex: 1 1 160px;
+}
+
+.calendar-filter-field label {
+    display: block;
+    margin-bottom: 4px;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.calendar-filter-actions {
+    display: flex;
+    gap: 8px;
+}
+
 .calendar-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 280px;

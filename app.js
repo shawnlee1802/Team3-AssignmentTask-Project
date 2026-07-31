@@ -524,10 +524,64 @@ app.get("/calendar", requireLogin, async (req, res, next) => {
     );
     // Update any stored priorities so the calendar uses the correct category colors.
     await syncAssignmentPriorities(assignments);
+
+    // Build filter choices only from this user's assignments. Keeping this logic
+    // inside the calendar route avoids changing shared assignment behaviour.
+    const filterOptions = {
+      modules: [...new Set(assignments.map((assignment) => assignment.module_name))]
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b)),
+      statuses: [...new Set(assignments.map((assignment) => assignment.status))]
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b)),
+      priorities: ["Overdue", "High", "Medium", "Low", "Completed"].filter(
+        (priority) => assignments.some((assignment) => assignment.priority === priority)
+      ),
+    };
+
+    const queryValue = (value) => (typeof value === "string" ? value.trim() : "");
+    const requestedFilters = {
+      module: queryValue(req.query.module),
+      status: queryValue(req.query.status),
+      priority: queryValue(req.query.priority),
+    };
+    // Ignore unknown query values rather than showing an unexpectedly empty calendar.
+    const filters = {
+      module: filterOptions.modules.includes(requestedFilters.module) ? requestedFilters.module : "",
+      status: filterOptions.statuses.includes(requestedFilters.status) ? requestedFilters.status : "",
+      priority: filterOptions.priorities.includes(requestedFilters.priority)
+        ? requestedFilters.priority
+        : "",
+    };
+
+    const filteredAssignments = assignments.filter(
+      (assignment) =>
+        (!filters.module || assignment.module_name === filters.module) &&
+        (!filters.status || assignment.status === filters.status) &&
+        (!filters.priority || assignment.priority === filters.priority)
+    );
+
     // Build the calendar data structure for the requested month.
-    const calendar = buildCalendar(assignments, req.query.month);
+    const calendar = buildCalendar(filteredAssignments, req.query.month);
+
+    // Preserve active filters when navigating between calendar months.
+    const buildFilteredMonthUrl = (month) => {
+      const params = new URLSearchParams({ month });
+      Object.entries(filters).forEach(([name, value]) => {
+        if (value) {
+          params.set(name, value);
+        }
+      });
+      return `/calendar?${params.toString()}`;
+    };
+    const calendarNavigation = {
+      previousMonthUrl: buildFilteredMonthUrl(calendar.previousMonth),
+      nextMonthUrl: buildFilteredMonthUrl(calendar.nextMonth),
+      todayMonthUrl: buildFilteredMonthUrl(calendar.todayMonth),
+    };
+
     // Keep only upcoming incomplete assignments for the sidebar list.
-    const upcomingAssignments = assignments
+    const upcomingAssignments = filteredAssignments
       .filter(
         (assignment) =>
           assignment.due_date >= calendar.today && !isCompletedStatus(assignment.status)
@@ -535,7 +589,13 @@ app.get("/calendar", requireLogin, async (req, res, next) => {
       .slice(0, 6);
 
     // Render the calendar page with the month grid and upcoming deadlines.
-    res.render("calendar", { ...calendar, upcomingAssignments });
+    res.render("calendar", {
+      ...calendar,
+      ...calendarNavigation,
+      upcomingAssignments,
+      filters,
+      filterOptions,
+    });
   } catch (error) {
     next(error);
   }

@@ -8,17 +8,62 @@
     <a href="/assignments/add" class="btn btn-primary">+ Add Assignment</a>
 </div>
 
+<form action="/calendar" method="get" class="calendar-filter-bar" aria-label="Filter calendar assignments">
+    <input type="hidden" name="month" value="<%= currentMonth %>">
+
+    <div class="calendar-filter-field">
+        <label for="calendar-module">Module</label>
+        <select id="calendar-module" name="module" class="form-select form-select-sm">
+            <option value="">All modules</option>
+            <% filterOptions.modules.forEach((moduleName) => { %>
+                <option value="<%= moduleName %>" <%= filters.module === moduleName ? "selected" : "" %>>
+                    <%= moduleName %>
+                </option>
+            <% }) %>
+        </select>
+    </div>
+
+    <div class="calendar-filter-field">
+        <label for="calendar-status">Status</label>
+        <select id="calendar-status" name="status" class="form-select form-select-sm">
+            <option value="">All statuses</option>
+            <% filterOptions.statuses.forEach((status) => { %>
+                <option value="<%= status %>" <%= filters.status === status ? "selected" : "" %>>
+                    <%= status %>
+                </option>
+            <% }) %>
+        </select>
+    </div>
+
+    <div class="calendar-filter-field">
+        <label for="calendar-priority">Priority</label>
+        <select id="calendar-priority" name="priority" class="form-select form-select-sm">
+            <option value="">All priorities</option>
+            <% filterOptions.priorities.forEach((priority) => { %>
+                <option value="<%= priority %>" <%= filters.priority === priority ? "selected" : "" %>>
+                    <%= priority %>
+                </option>
+            <% }) %>
+        </select>
+    </div>
+
+    <div class="calendar-filter-actions">
+        <button type="submit" class="btn btn-sm btn-primary">Apply filters</button>
+        <a href="/calendar?month=<%= currentMonth %>" class="btn btn-sm btn-outline-secondary">Clear</a>
+    </div>
+</form>
+
 <div class="calendar-layout">
     <section class="calendar-card" aria-labelledby="calendar-month-label">
         <div class="calendar-toolbar">
-            <a class="btn btn-sm btn-outline-primary" href="/calendar?month=<%= previousMonth %>" aria-label="Previous month">&larr;</a>
+            <a class="btn btn-sm btn-outline-primary" href="<%= previousMonthUrl %>" aria-label="Previous month">&larr;</a>
             <div class="calendar-title">
                 <h2 id="calendar-month-label"><%= monthLabel %></h2>
                 <% if (currentMonth !== todayMonth) { %>
-                    <a href="/calendar?month=<%= todayMonth %>">Back to today</a>
+                    <a href="<%= todayMonthUrl %>">Back to today</a>
                 <% } %>
             </div>
-            <a class="btn btn-sm btn-outline-primary" href="/calendar?month=<%= nextMonth %>" aria-label="Next month">&rarr;</a>
+            <a class="btn btn-sm btn-outline-primary" href="<%= nextMonthUrl %>" aria-label="Next month">&rarr;</a>
         </div>
 
         <div class="calendar-grid calendar-weekdays" aria-hidden="true">
