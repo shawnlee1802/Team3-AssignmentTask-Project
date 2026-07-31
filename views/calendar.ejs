@@ -39,8 +39,13 @@
                         <% } else { %>
                             <div class="calendar-day <%= day.isToday ? 'calendar-today' : '' %>">
                                 <div class="calendar-date-row">
-                                    <%# Show the calendar date number for this cell. %>
-                                    <time datetime="<%= day.date %>" class="calendar-date"><%= day.day %></time>
+                                    <%# Clicking a date opens the add form with that due date pre-filled. %>
+                                    <a class="calendar-date calendar-date-add"
+                                       href="/assignments/add?due_date=<%= day.date %>"
+                                       aria-label="Add assignment due on <%= day.date %>"
+                                       title="Add assignment on this date">
+                                        <time datetime="<%= day.date %>"><%= day.day %></time>
+                                    </a>
                                     <%# Show how many assignments fall on this date. %>
                                     <% if (day.assignments.length) { %>
                                         <span class="calendar-count"><%= day.assignments.length %></span>

@@ -252,7 +252,21 @@
     font-weight: 700;
 }
 
+.calendar-date-add {
+    border-radius: 50%;
+    text-decoration: none;
+}
+
+.calendar-date-add:hover,
+.calendar-date-add:focus-visible {
+    color: #fff;
+    background: #2563eb;
+    outline: none;
+}
+
 .calendar-today .calendar-date { color: #fff; background: #2563eb; border-radius: 50%; }
+.calendar-today .calendar-date-add:hover,
+.calendar-today .calendar-date-add:focus-visible { background: #1d4ed8; }
 .calendar-count { color: #64748b; font-size: 11px; }
 .calendar-events { display: grid; gap: 5px; }
 

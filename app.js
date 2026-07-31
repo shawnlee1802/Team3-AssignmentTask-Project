@@ -541,8 +541,26 @@ app.get("/calendar", requireLogin, async (req, res, next) => {
   }
 });
 
+// Accepts a calendar date used to pre-fill the add-assignment form.
+// The component check rejects impossible dates such as 2026-02-31.
+function normalisePrefilledDueDate(value) {
+  if (typeof value !== "string" || !/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(value)) {
+    return "";
+  }
+
+  const [year, month, day] = value.split("-").map(Number);
+  const parsedDate = new Date(Date.UTC(year, month - 1, day));
+  const isValidDate =
+    parsedDate.getUTCFullYear() === year &&
+    parsedDate.getUTCMonth() === month - 1 &&
+    parsedDate.getUTCDate() === day;
+
+  return isValidDate ? value : "";
+}
+
 app.get("/assignments/add", requireLogin, (req, res) => {
-  res.render("add_assignment", { form_data: {} });
+  const dueDate = normalisePrefilledDueDate(req.query.due_date);
+  res.render("add_assignment", { form_data: { due_date: dueDate } });
 });
 
 app.post("/assignments/add", requireLogin, async (req, res, next) => {
