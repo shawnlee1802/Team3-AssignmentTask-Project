@@ -187,14 +187,8 @@ pipeline {
                                 @echo off
                                 setlocal EnableExtensions EnableDelayedExpansion
 
-                                set "RESTRICTED_KEY=%WORKSPACE%\\ec2-jenkins-key.tmp"
+                                set "RESTRICTED_KEY=%WORKSPACE%\\ec2-jenkins-key-%BUILD_NUMBER%.tmp"
                                 set "SSH_EXIT_CODE=1"
-
-                                copy /Y "%EC2_SSH_KEY%" "!RESTRICTED_KEY!" >NUL
-                                if errorlevel 1 (
-                                    set "SSH_EXIT_CODE=!ERRORLEVEL!"
-                                    goto cleanup_key
-                                )
 
                                 for /f "delims=" %%U in ('whoami') do set "JENKINS_USER=%%U"
                                 if not defined JENKINS_USER (
@@ -203,7 +197,13 @@ pipeline {
                                     goto cleanup_key
                                 )
 
-                                icacls "!RESTRICTED_KEY!" /inheritance:r >NUL
+                                copy /Y "%EC2_SSH_KEY%" "!RESTRICTED_KEY!" >NUL
+                                if errorlevel 1 (
+                                    set "SSH_EXIT_CODE=!ERRORLEVEL!"
+                                    goto cleanup_key
+                                )
+
+                                icacls "!RESTRICTED_KEY!" /grant:r "!JENKINS_USER!:(F)" >NUL
                                 if errorlevel 1 (
                                     set "SSH_EXIT_CODE=!ERRORLEVEL!"
                                     goto cleanup_key
@@ -215,7 +215,7 @@ pipeline {
                                     goto cleanup_key
                                 )
 
-                                icacls "!RESTRICTED_KEY!" /grant:r "!JENKINS_USER!:(F)" >NUL
+                                icacls "!RESTRICTED_KEY!" /inheritance:r >NUL
                                 if errorlevel 1 (
                                     set "SSH_EXIT_CODE=!ERRORLEVEL!"
                                     goto cleanup_key
