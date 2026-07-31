@@ -160,6 +160,85 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to AWS EC2') {
+            steps {
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: 'assignment-tracker-ec2-ssh',
+                        keyFileVariable: 'EC2_SSH_KEY'
+                    ),
+                    string(
+                        credentialsId: 'assignment-tracker-ec2-host',
+                        variable: 'EC2_HOST'
+                    )
+                ]) {
+                    script {
+                        if (isUnix()) {
+                            sh '''
+                                ssh -i "$EC2_SSH_KEY" \
+                                  -o BatchMode=yes \
+                                  -o StrictHostKeyChecking=accept-new \
+                                  "ubuntu@$EC2_HOST" \
+                                  'cd /home/ubuntu/Team3-AssignmentTask-Project && git checkout main && git pull --ff-only origin main && bash scripts/deploy-ec2.sh'
+                            '''
+                        } else {
+                            bat '''
+                                @echo off
+                                ssh -i "%EC2_SSH_KEY%" -o BatchMode=yes -o StrictHostKeyChecking=accept-new "ubuntu@%EC2_HOST%" "cd /home/ubuntu/Team3-AssignmentTask-Project && git checkout main && git pull --ff-only origin main && bash scripts/deploy-ec2.sh"
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Verify AWS Health') {
+            steps {
+                withCredentials([
+                    string(
+                        credentialsId: 'assignment-tracker-ec2-host',
+                        variable: 'EC2_HOST'
+                    )
+                ]) {
+                    script {
+                        if (isUnix()) {
+                            sh '''
+                                for attempt in $(seq 1 30); do
+                                  echo "AWS health check attempt $attempt of 30..."
+
+                                  if node -e "fetch('http://' + process.env.EC2_HOST + ':3000/health', { signal: AbortSignal.timeout(5000) }).then(async (response) => { const body = await response.text(); console.log(body); if (!response.ok) process.exit(1); }).catch((error) => { console.error(error.message); process.exit(1); });"; then
+                                    exit 0
+                                  fi
+
+                                  if [ "$attempt" -lt 30 ]; then
+                                    sleep 5
+                                  fi
+                                done
+
+                                echo "Public AWS health check failed after 30 attempts."
+                                exit 1
+                            '''
+                        } else {
+                            bat '''
+                                @echo off
+                                for /L %%I in (1,1,30) do (
+                                    echo AWS health check attempt %%I of 30...
+
+                                    node -e "fetch('http://' + process.env.EC2_HOST + ':3000/health', { signal: AbortSignal.timeout(5000) }).then(async (response) => { const body = await response.text(); console.log(body); if (!response.ok) process.exit(1); }).catch((error) => { console.error(error.message); process.exit(1); });"
+                                    if not errorlevel 1 exit /b 0
+
+                                    if not %%I==30 powershell -NoProfile -Command "Start-Sleep -Seconds 5"
+                                )
+
+                                echo Public AWS health check failed after 30 attempts.
+                                exit /b 1
+                            '''
+                        }
+                    }
+                }
+            }
+        }
     }
 
     post {
