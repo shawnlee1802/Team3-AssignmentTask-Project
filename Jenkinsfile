@@ -185,7 +185,48 @@ pipeline {
                         } else {
                             bat '''
                                 @echo off
-                                ssh -i "%EC2_SSH_KEY%" -o BatchMode=yes -o StrictHostKeyChecking=accept-new "ubuntu@%EC2_HOST%" "cd /home/ubuntu/Team3-AssignmentTask-Project && git checkout main && git pull --ff-only origin main && bash scripts/deploy-ec2.sh"
+                                setlocal EnableExtensions EnableDelayedExpansion
+
+                                set "RESTRICTED_KEY=%WORKSPACE%\\ec2-jenkins-key.tmp"
+                                set "SSH_EXIT_CODE=1"
+
+                                copy /Y "%EC2_SSH_KEY%" "!RESTRICTED_KEY!" >NUL
+                                if errorlevel 1 (
+                                    set "SSH_EXIT_CODE=!ERRORLEVEL!"
+                                    goto cleanup_key
+                                )
+
+                                for /f "delims=" %%U in ('whoami') do set "JENKINS_USER=%%U"
+                                if not defined JENKINS_USER (
+                                    echo Unable to detect the Jenkins service identity.
+                                    set "SSH_EXIT_CODE=1"
+                                    goto cleanup_key
+                                )
+
+                                icacls "!RESTRICTED_KEY!" /inheritance:r >NUL
+                                if errorlevel 1 (
+                                    set "SSH_EXIT_CODE=!ERRORLEVEL!"
+                                    goto cleanup_key
+                                )
+
+                                icacls "!RESTRICTED_KEY!" /setowner "!JENKINS_USER!" >NUL
+                                if errorlevel 1 (
+                                    set "SSH_EXIT_CODE=!ERRORLEVEL!"
+                                    goto cleanup_key
+                                )
+
+                                icacls "!RESTRICTED_KEY!" /grant:r "!JENKINS_USER!:(F)" >NUL
+                                if errorlevel 1 (
+                                    set "SSH_EXIT_CODE=!ERRORLEVEL!"
+                                    goto cleanup_key
+                                )
+
+                                ssh -i "!RESTRICTED_KEY!" -o BatchMode=yes -o StrictHostKeyChecking=accept-new "ubuntu@%EC2_HOST%" "cd /home/ubuntu/Team3-AssignmentTask-Project && git checkout main && git pull --ff-only origin main && bash scripts/deploy-ec2.sh"
+                                set "SSH_EXIT_CODE=!ERRORLEVEL!"
+
+:cleanup_key
+                                del /F /Q "!RESTRICTED_KEY!" >NUL 2>&1
+                                exit /b !SSH_EXIT_CODE!
                             '''
                         }
                     }
