@@ -110,6 +110,12 @@
                                             <span><%= assignment.assignment_title %></span>
                                             <%# Show the module name as the smaller supporting line. %>
                                             <small><%= assignment.module_name %></small>
+                                            <%# Reuse the assignment reminder text to show time remaining. %>
+                                            <% if (assignment.reminderCountdown) { %>
+                                                <small class="calendar-countdown <%= assignment.reminderCountdown.className %>">
+                                                    <%= assignment.reminderCountdown.text %>
+                                                </small>
+                                            <% } %>
                                         </a>
                                     <% }) %>
                                 </div>

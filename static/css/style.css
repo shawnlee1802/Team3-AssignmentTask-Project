@@ -315,6 +315,11 @@
 .calendar-event:hover { color: #1d4ed8; background: #e0e7ff; }
 .calendar-event span, .calendar-event small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .calendar-event small { margin-top: 2px; color: #64748b; font-size: 10px; }
+.calendar-event .calendar-countdown { margin-top: 3px; font-weight: 700; }
+.calendar-event .calendar-countdown.text-danger-emphasis { color: #b91c1c; }
+.calendar-event .calendar-countdown.text-warning-emphasis { color: #b45309; }
+.calendar-event .calendar-countdown.text-info-emphasis { color: #0369a1; }
+.calendar-event .calendar-countdown.text-muted { color: #64748b; }
 .calendar-event.priority-high { border-left-color: #dc2626; }
 .calendar-event.priority-medium { border-left-color: #f59e0b; }
 .calendar-event.priority-low { border-left-color: #22c55e; }

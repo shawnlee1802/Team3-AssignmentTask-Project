@@ -561,8 +561,12 @@ app.get("/calendar", requireLogin, async (req, res, next) => {
         (!filters.priority || assignment.priority === filters.priority)
     );
 
+    // Add existing reminder metadata to calendar-only copies of the assignments.
+    // This leaves the shared assignment records and reminder helpers unchanged.
+    const calendarAssignments = filteredAssignments.map(decorateAssignmentReminder);
+
     // Build the calendar data structure for the requested month.
-    const calendar = buildCalendar(filteredAssignments, req.query.month);
+    const calendar = buildCalendar(calendarAssignments, req.query.month);
 
     // Preserve active filters when navigating between calendar months.
     const buildFilteredMonthUrl = (month) => {
