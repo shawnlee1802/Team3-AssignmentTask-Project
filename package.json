@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "node --check app.js && node --check db.js && node --check calendar.js && node tests/priority.test.js"
+    "test": "node --check app.js && node --check db.js && node --check calendar.js && node tests/priority.test.js && node --test tests/auth.test.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -17,7 +17,9 @@
     "mysql2": "^3.11.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "proxyquire": "^2.1.3",
+    "supertest": "^7.2.2"
   },
   "engines": {
     "node": ">=18"
